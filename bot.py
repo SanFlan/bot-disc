@@ -38,6 +38,7 @@ async def add(ctx, serie: str):
 async def listdb(ctx):
     for serie in db:
         print(serie)
+        print("propuesta por {}".format(bot.get_user(serie.user)))
     await ctx.send("Mira los logs")
 
 
