@@ -26,7 +26,14 @@ bot = commands.Bot(command_prefix='?!', description='series', intents=intents)
 
 @bot.command(name='roll')
 async def roll(ctx):
-    await ctx.send(random.randint(0,len(db)))
+    entries = len(db)
+    if entries == 0:
+        await ctx.send("No hay series")
+        return
+    roll = random.randint(0,entries-1)
+    serie = db[roll]
+    await ctx.send("Salio la serie {} propuesta por <@{}>".format(serie.serie, serie.user))
+    db.remove(serie)
 
 @bot.command()
 async def add(ctx, serie: str):
