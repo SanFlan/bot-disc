@@ -34,21 +34,25 @@ bot = commands.Bot(command_prefix='?!', description='entrys', intents=intents)
 async def roll(ctx):
     entries = len(db)
     if entries == 0:
-        await ctx.send("No hay entrys")
+        await ctx.send("No hay entradas")
         return
     roll = random.randint(0,entries-1)
     entry = db[roll]
     await ctx.send("{} propuesta por <@{}>".format(entry.entry, entry.user))
-    member = ctx.guild.get_member(entry.user)
-    if(member.voice != None):
-        await ctx.send("Preparate el pochoclo <@{}> que salio tu serie".format(
+    try:
+        member = ctx.guild.get_member(entry.user)
+        if(member.voice != None):
+            await ctx.send("Preparate el pochoclo <@{}> que salio tu serie".format(
+                entry.user
+                ))
+            db.remove(entry)
+            return
+        await ctx.send("Parece que <@{}> no esta en vc...".format(
             entry.user
             ))
-        db.remove(entry)
+    except Exception:
+        await ctx.send("Hubo un error y me hice caca encima")
         return
-    await ctx.send("Parece que <@{}> no esta en vc...".format(
-        entry.user
-        ))
 
 @bot.command()
 async def add(ctx, entry: str):
