@@ -41,10 +41,11 @@ async def roll(ctx):
     await ctx.send("{} propuesta por <@{}>".format(entry.entry, entry.user))
     try:
         member = ctx.guild.get_member(entry.user)
-        if(member.voice != None):
-            await ctx.send("Preparate el pochoclo <@{}> que salio tu serie".format(
-                entry.user
-                ))
+        if member.voice != None:
+            await ctx.send(
+                    "Preparate el pochoclo <@{}> que salio tu serie".format(
+                        entry.user
+                        ))
             db.remove(entry)
             return
         await ctx.send("Parece que <@{}> no esta en vc...".format(
@@ -60,7 +61,8 @@ async def add(ctx, entry: str):
         if ctx.message.author.id == entry.user:
             await ctx.send("eh loco vos ya propusiste")
             return
-        if entry == entry.entry: #aca habria que ver como hacer para que no haya misspells
+        if entry == entry.entry: 
+            #aca habria que ver como hacer para que no haya misspells
             await ctx.send("esa serie esta repetida")
             return
     tmp = Entry(ctx.author.id, entry, 0)
@@ -77,13 +79,13 @@ async def list_db(ctx):
     for entry in db:
         await ctx.send(entry.entry)
         await ctx.send("propuesta por {}".format(bot.get_user(entry.user)))
-    #await ctx.send("Mira los logs")
+
 
 @bot.command(aliases=['vchk'])
 async def is_in_voice(ctx, user: discord.User):
     print(ctx.guild.get_member(user.id))
     member = ctx.guild.get_member(user.id)
-    if(member.voice != None):
+    if member.voice != None:
         await ctx.send("El usuario mencionado esta en voice!")
         return
     await ctx.send("El usuario mencionado no esta en voice :(")
@@ -94,9 +96,13 @@ async def is_in_voice(ctx, user: discord.User):
 #@commands.has_role('el mas pijudo')
 #asi funciona bien, queria ver como hacer para que mandara un mensaje de error pero no lo descubri
 async def tickets(ctx):
-    for entry in db:
-        entry.ticket += 1
-        print(entry)
-    await ctx.send("Sumando tickets... beep boop...")
+    for role in ctx.author.roles:
+        if str(role) == 'el mas pijudo':
+            for entry in db:
+                entry.ticket += 1
+                print(entry)
+            await ctx.send("Sumando tickets... beep boop...")
+            return
+    await ctx.send("Privilegios insuficientes")
 
 bot.run(token)
