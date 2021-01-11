@@ -56,16 +56,28 @@ async def roll(ctx):
 
 @bot.command()
 async def add(ctx, entry: str):
+    for entry in db:
+        if ctx.message.author.id == entry.user:
+            await ctx.send("eh loco vos ya propusiste")
+            return
+        if entry == entry.entry: #aca habria que ver como hacer para que no haya misspells
+            await ctx.send("esa serie esta repetida")
+            return
     tmp = Entry(ctx.author.id, entry, 0)
     db.append(tmp)
     await ctx.send("Se Agrego La Entry!")
 
+
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
+    entries = len(db)
+    if entries == 0:
+        await ctx.send("No hay entradas")
+        return
     for entry in db:
-        print(entry)
-        print("propuesta por {}".format(bot.get_user(entry.user)))
-    await ctx.send("Mira los logs")
+        await ctx.send(entry.entry)
+        await ctx.send("propuesta por {}".format(bot.get_user(entry.user)))
+    #await ctx.send("Mira los logs")
 
 @bot.command(aliases=['vchk'])
 async def is_in_voice(ctx, user: discord.User):
@@ -76,5 +88,15 @@ async def is_in_voice(ctx, user: discord.User):
         return
     await ctx.send("El usuario mencionado no esta en voice :(")
     return
+
+
+@bot.command(aliases=['tick'])
+#@commands.has_role('el mas pijudo')
+#asi funciona bien, queria ver como hacer para que mandara un mensaje de error pero no lo descubri
+async def tickets(ctx):
+    for entry in db:
+        entry.ticket += 1
+        print(entry)
+    await ctx.send("Sumando tickets... beep boop...")
 
 bot.run(token)
