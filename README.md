@@ -1,10 +1,11 @@
 # BOT PARA ELEGIR SERIES AL AZAR
 
 tiene que implementar 4 tareas:
-* agregar una serie
+* agregar una serie, chequear que el usuario que la propuso no haya propuesto otra cosa y que esa serie no haya sido vista en el pasado.
 * tirar un dado para elegir la serie
 * fijarse si un usuario esta conectado (el que eligio la serie que salio)
-* eliminar una serie
+* eliminar una serie (manual y automaticamente)
+* adoptar series?
 
 La base de datos deberia tomar la forma de:
 
