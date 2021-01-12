@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 
-from db import add_entry, get_all_entries
+from db import add_entry, get_all_entries, increment_tickets
 
 import os
 from dotenv import load_dotenv
@@ -43,7 +43,6 @@ async def roll(ctx):
 
 @bot.command()
 async def add(ctx, entry: str):
-    print(get_all_entries())
     for entry in get_all_entries():
         if ctx.message.author.id == entry.user_id:
             await ctx.send("eh loco vos ya propusiste")
@@ -83,9 +82,7 @@ async def is_in_voice(ctx, user: discord.User):
 async def tickets(ctx):
     for role in ctx.author.roles:
         if str(role) == 'el mas pijudo':
-            for entry in db:
-                entry.ticket += 1
-                print(entry)
+            increment_tickets()
             await ctx.send("Sumando tickets... beep boop...")
             return
     await ctx.send("Privilegios insuficientes")
