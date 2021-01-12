@@ -2,25 +2,11 @@ import discord
 from discord.ext import commands
 import random
 
+from db import add_entry, get_all_entries
+
 import os
 from dotenv import load_dotenv
 
-
-class Entry:
-    def __init__(self, user, entry, ticket):
-        self.user = user
-        self.entry = entry
-        self.ticket = 0
-
-    def __str__(self):
-        return 'userid: {} entry: {} tickets: {}'.format(
-                self.user,
-                self.entry,
-                self.ticket
-                )
-
-
-db = []
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
@@ -32,24 +18,24 @@ bot = commands.Bot(command_prefix='?!', description='entrys', intents=intents)
 
 @bot.command(name='roll')
 async def roll(ctx):
-    entries = len(db)
+    entries = get_all_entries().count()
     if entries == 0:
         await ctx.send("No hay entradas")
         return
     roll = random.randint(0,entries-1)
-    entry = db[roll]
-    await ctx.send("{} propuesta por <@{}>".format(entry.entry, entry.user))
+    entry = get_all_entries()[roll]
+    await ctx.send("{} propuesta por <@{}>".format(entry.entry_name, entry.user_id))
     try:
-        member = ctx.guild.get_member(entry.user)
+        member = ctx.guild.get_member(entry.user_id)
         if member.voice != None:
             await ctx.send(
                     "Preparate el pochoclo <@{}> que salio tu serie".format(
-                        entry.user
+                        entry.user_id
                         ))
-            db.remove(entry)
+            #db.remove(entry)
             return
         await ctx.send("Parece que <@{}> no esta en vc...".format(
-            entry.user
+            entry.user_id
             ))
     except Exception:
         await ctx.send("Hubo un error y me hice caca encima")
@@ -57,16 +43,16 @@ async def roll(ctx):
 
 @bot.command()
 async def add(ctx, entry: str):
-    for entry in db:
-        if ctx.message.author.id == entry.user:
+    print(get_all_entries())
+    for entry in get_all_entries():
+        if ctx.message.author.id == entry.user_id:
             await ctx.send("eh loco vos ya propusiste")
             return
-        if entry == entry.entry: 
+        if entry == entry.entry_name: 
             #aca habria que ver como hacer para que no haya misspells
             await ctx.send("esa serie esta repetida")
             return
-    tmp = Entry(ctx.author.id, entry, 0)
-    db.append(tmp)
+    add_entry(ctx.author.id, entry)
     await ctx.send("Se Agrego La Entry!")
 
 
