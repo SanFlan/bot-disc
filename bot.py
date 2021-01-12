@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 
-from db import add_entry, get_all_entries, increment_tickets, remove_entry
+from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user
 
 import os
 from dotenv import load_dotenv
@@ -43,13 +43,20 @@ async def roll(ctx):
 
 @bot.command()
 async def add(ctx, entry: str):
-    for entry in get_all_entries():
-        if ctx.message.author.id == entry.user_id:
-            await ctx.send("eh loco vos ya propusiste")
-            return
-        if entry.lower == entry.entry_name.lower:
+    if get_entry_from_user(ctx.message.author.id) != None:
+        await ctx.send("eh loco vos ya propusiste")
+        return
+    if get_entry_from_name(entry.lower()) != None:
             await ctx.send("esa serie esta repetida")
             return
+
+#    for entry in get_all_entries():
+#        if ctx.message.author.id == entry.user_id:
+#            await ctx.send("eh loco vos ya propusiste")
+#            return
+#        if entry.lower == entry.entry_name.lower:
+#            await ctx.send("esa serie esta repetida")
+#            return
     add_entry(ctx.author.id, entry)
     await ctx.send("Se Agrego La Entry!")
 

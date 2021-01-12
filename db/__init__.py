@@ -47,6 +47,20 @@ def get_all_entries():
     return entries
 
 
+def get_entry_from_name(entry_name):
+    session = Session()
+    entry = session.query(Entry).filter(Entry.entry_name == entry_name).one_or_none()
+    session.close()
+    return entry
+
+
+def get_entry_from_user(user_id):
+    session = Session()
+    entry = session.query(Entry).filter(Entry.user_id == user_id).one_or_none()
+    session.close()
+    return entry
+
+
 def increment_tickets():
     session = Session()
     for entry in session.query(Entry):
