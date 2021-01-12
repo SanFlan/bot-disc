@@ -57,13 +57,13 @@ async def add(ctx, entry: str):
 
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
-    entries = len(db)
+    entries = get_all_entries()
     if entries == 0:
         await ctx.send("No hay entradas")
         return
-    for entry in db:
-        await ctx.send(entry.entry)
-        await ctx.send("propuesta por {}".format(bot.get_user(entry.user)))
+    for entry in entries:
+        await ctx.send(entry.entry_name)
+        await ctx.send("propuesto por {}".format(bot.get_user(entry.user_id)))
 
 
 @bot.command(aliases=['vchk'])
