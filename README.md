@@ -12,13 +12,17 @@ tiene que implementar las siguientes tareas:
 ## DB
 La db de series propuestas debe tomar la forma de:
 
-| ID (PK) | user | serie | cantidad tickets | visto |
+| ID (PK) | user  | serie        | cantidad tickets | visto    |
+| ------- | ----- | ------------ | ---------------- | -------- |
+| 1       | Patas | Boku No Pico | 3                | True     |
 
 Cada vez que no sale una serie se le deberia sumar un ticket hasta un maximo de 5 tickets, cada ticket aumenta la chance de que salga una serie.
 
 La ddbbb de series vistas debe tomar la forma de:
 
-| fecha visto | serie |
+| serie        | fecha visto |
+| ------------ | ----------- |
+| Boku No Pico | 23/1/2021   |
 
 ## ROLL
 
