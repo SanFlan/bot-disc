@@ -27,7 +27,7 @@ Session = sessionmaker(bind=engine)
 
 def add_entry(user_id, entry_name):
     session = Session()
-    entry = Entry(user_id=user_id, entry_name=entry_name, tickets=0)
+    entry = Entry(user_id=user_id, entry_name=entry_name, tickets=1)
     session.add(entry)
     session.commit()
     session.close()
