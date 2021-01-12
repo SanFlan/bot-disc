@@ -42,7 +42,6 @@ async def roll(ctx):
         return
 
 @bot.command()
-<<<<<<< HEAD
 async def add(ctx, entry: str):
     if get_entry_from_user(ctx.message.author.id) != None:
         await ctx.send("eh loco vos ya propusiste")
@@ -50,28 +49,18 @@ async def add(ctx, entry: str):
     if get_entry_from_name(entry.lower()) != None:
             await ctx.send("esa serie esta repetida")
             return
-
-#    for entry in get_all_entries():
-#        if ctx.message.author.id == entry.user_id:
-#            await ctx.send("eh loco vos ya propusiste")
-#            return
-#        if entry.lower == entry.entry_name.lower:
-#            await ctx.send("esa serie esta repetida")
-#            return
     add_entry(ctx.author.id, entry)
     await ctx.send("Se Agrego La Entry!")
-=======
-async def add(ctx, new_entry: str):
-    for db_entry in get_all_entries():
-        if ctx.message.author.id == new_entry.user_id:
-            await ctx.send("eh loco vos ya propusiste")
-            return
-        if new_entry.lower() == (db_entry.entry_name).lower(): 
-            await ctx.send("esa serie esta repetida")
-            return
-    add_entry(ctx.author.id, new_entry)
-    await ctx.send("Serie Agregada!")
->>>>>>> 9145955b22cc2fb70aeb5b573caa4bc8f97ad5a4
+#async def add(ctx, new_entry: str):
+#    for db_entry in get_all_entries():
+#        if ctx.message.author.id == new_entry.user_id:
+#            await ctx.send("eh loco vos ya propusiste")
+#            return
+#        if new_entry.lower() == (db_entry.entry_name).lower(): 
+#            await ctx.send("esa serie esta repetida")
+#            return
+#    add_entry(ctx.author.id, new_entry)
+#    await ctx.send("Serie Agregada!")
 
 
 @bot.command(aliases=['ldb'])
