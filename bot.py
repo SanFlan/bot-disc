@@ -14,7 +14,7 @@ token = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix='#', description='entrys', intents=intents)
+bot = commands.Bot(command_prefix='!?', description='entrys', intents=intents)
 
 @bot.command(name='roll')
 async def roll(ctx):
@@ -43,15 +43,15 @@ async def roll(ctx):
 
 @bot.command()
 async def add(ctx, entry: str):
-    for entry in get_all_entries():
-        if ctx.message.author.id == entry.user_id:
+    for db_entry in get_all_entries():
+        if ctx.message.author.id == db_entry.user_id:
             await ctx.send("eh loco vos ya propusiste")
             return
-        if entry.lower == entry.entry_name.lower:
+        if entry.lower() == (db_entry.entry_name).lower(): 
             await ctx.send("esa serie esta repetida")
             return
     add_entry(ctx.author.id, entry)
-    await ctx.send("Se Agrego La Entry!")
+    await ctx.send("Serie Agregada!")
 
 
 @bot.command(aliases=['ldb'])
