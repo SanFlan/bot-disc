@@ -48,8 +48,7 @@ async def add(ctx, entry: str):
         if ctx.message.author.id == entry.user_id:
             await ctx.send("eh loco vos ya propusiste")
             return
-        if entry == entry.entry_name: 
-            #aca habria que ver como hacer para que no haya misspells
+        if entry.lower == entry.entry_name.lower:
             await ctx.send("esa serie esta repetida")
             return
     add_entry(ctx.author.id, entry)
