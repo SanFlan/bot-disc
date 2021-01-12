@@ -57,7 +57,7 @@ async def add(ctx, entry: str):
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
     entries = get_all_entries()
-    if entries == 0:
+    if entries.count() == 0:
         await ctx.send("No hay entradas")
         return
     for entry in entries:
