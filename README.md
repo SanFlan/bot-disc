@@ -36,7 +36,7 @@ La serie a ver se determina:
 
 Esto corre en python3, yo estoy usando 3.7.3 pero deberia correr en cualquier cosa.
 
-Hay que instalar python-dotenv, discord.py y estas.
+Hay que instalar python-dotenv, discord.py y SQLAlchemy.
 
 El .env contiene la llave del bot, ES CRUCIAL NO PASARSELA A NADIE.
 
