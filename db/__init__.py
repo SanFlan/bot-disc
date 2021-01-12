@@ -39,4 +39,13 @@ def get_all_entries():
     session.close()
     return entries
 
-#def increment_tickets
+
+def increment_tickets():
+    session = Session()
+    for entry in session.query(Entry):
+        if entry.tickets != 5:
+            entry.tickets += 5
+    session.commit()
+    session.close()
+
+
