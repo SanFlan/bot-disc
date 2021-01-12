@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 
-from db import add_entry, get_all_entries, increment_tickets
+from db import add_entry, get_all_entries, increment_tickets, remove_entry
 
 import os
 from dotenv import load_dotenv
@@ -14,11 +14,11 @@ token = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix='?!', description='entrys', intents=intents)
+bot = commands.Bot(command_prefix='#', description='entrys', intents=intents)
 
 @bot.command(name='roll')
 async def roll(ctx):
-    entries = get_all_entries().count()
+    entries = len(get_all_entries())
     if entries == 0:
         await ctx.send("No hay entradas")
         return
@@ -32,13 +32,13 @@ async def roll(ctx):
                     "Preparate el pochoclo <@{}> que salio tu serie".format(
                         entry.user_id
                         ))
-            #db.remove(entry)
+            remove_entry(entry)
             return
         await ctx.send("Parece que <@{}> no esta en vc...".format(
             entry.user_id
             ))
-    except Exception:
-        await ctx.send("Hubo un error y me hice caca encima")
+    except Exception as e:
+        await ctx.send("Hubo un error y me hice caca encima {}".format(e))
         return
 
 @bot.command()
@@ -57,7 +57,7 @@ async def add(ctx, entry: str):
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
     entries = get_all_entries()
-    if entries.count() == 0:
+    if len(entries) == 0:
         await ctx.send("No hay entradas")
         return
     for entry in entries:
@@ -86,5 +86,6 @@ async def tickets(ctx):
             await ctx.send("Sumando tickets... beep boop...")
             return
     await ctx.send("Privilegios insuficientes")
+
 
 bot.run(token)

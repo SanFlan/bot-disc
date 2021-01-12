@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URI = 'sqlite:///:memory'
+DATABASE_URI = 'sqlite:///:memory:'
 Base = declarative_base()
 
 class Entry(Base):
@@ -25,6 +25,13 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 
+def remove_entry(entry):
+    session = Session()
+    session.delete(entry)
+    session.commit()
+    session.close()
+
+
 def add_entry(user_id, entry_name):
     session = Session()
     entry = Entry(user_id=user_id, entry_name=entry_name, tickets=1)
@@ -35,7 +42,7 @@ def add_entry(user_id, entry_name):
 
 def get_all_entries():
     session = Session()
-    entries = session.query(Entry)
+    entries = session.query(Entry).all()
     session.close()
     return entries
 
