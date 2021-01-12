@@ -42,15 +42,15 @@ async def roll(ctx):
         return
 
 @bot.command()
-async def add(ctx, entry: str):
+async def add(ctx, new_entry: str):
     for db_entry in get_all_entries():
-        if ctx.message.author.id == db_entry.user_id:
+        if ctx.message.author.id == new_entry.user_id:
             await ctx.send("eh loco vos ya propusiste")
             return
-        if entry.lower() == (db_entry.entry_name).lower(): 
+        if new_entry.lower() == (db_entry.entry_name).lower(): 
             await ctx.send("esa serie esta repetida")
             return
-    add_entry(ctx.author.id, entry)
+    add_entry(ctx.author.id, new_entry)
     await ctx.send("Serie Agregada!")
 
 
