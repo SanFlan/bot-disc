@@ -14,7 +14,7 @@ token = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix='!?', description='entrys', intents=intents)
+bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
 
 @bot.command(name='roll')
 async def roll(ctx):
@@ -65,13 +65,19 @@ async def add(ctx, entry: str):
 
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
+    embed=discord.Embed(
+        title="Lista de series propuestas y sus autores",
+        color=0xFF5733
+        )
     entries = get_all_entries()
+    formated_list = ""
     if len(entries) == 0:
         await ctx.send("No hay entradas")
         return
     for entry in entries:
-        await ctx.send(entry.entry_name)
-        await ctx.send("propuesto por {}".format(bot.get_user(entry.user_id)))
+        formated_list += "**{}** - {}\n".format(bot.get_user(entry.user_id), entry.entry_name)
+    embed.add_field(name="\u200b", value=formated_list)
+    await ctx.send(embed=embed)
 
 
 @bot.command(aliases=['vchk'])
