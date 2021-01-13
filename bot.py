@@ -17,6 +17,16 @@ intents.members = True
 bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
 
 
+def is_admin():
+    async def check_role(ctx):
+        member = ctx.guild.get_member(ctx.author.id)
+        for role in member.roles:
+            if role.permissions.administrator == True:
+                return True
+        return False
+    return commands.check(check_role)
+
+
 @bot.command(name='roll')
 async def roll(ctx):
     entries = len(get_all_entries())
@@ -70,7 +80,7 @@ async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
 @add_entry_for_user.error
 async def add_entry_for_user_error(ctx, error):
     if error.__class__ == commands.errors.MissingRequiredArgument:
-        await ctx.send("Faltan argumentos chinchu '{}'".format(str(error)))
+        await ctx.send("Faltan argumentos chinchu '{}'".format(error.param))
         return
     if error.__class__ == commands.errors.BadArgument:
         await ctx.send("Pifiaste en algun argumento... {}".format(str(error)))
@@ -82,6 +92,7 @@ async def add_entry_for_user_error(ctx, error):
 
 
 @bot.command(aliases=['ldb'])
+@is_admin()
 async def list_db(ctx):
     embed=discord.Embed(
         title="Lista de series propuestas y sus autores",
@@ -96,6 +107,13 @@ async def list_db(ctx):
         formated_list += "**{}** - {}\n".format(bot.get_user(entry.user_id), entry.entry_name)
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
+
+
+@list_db.error
+async def list_db_error(ctx, error):
+    if error.__class__== commands.errors.CheckFailure:
+        await ctx.send("No tenes permisos, que hacias queriendo toquetear?")
+    print(error.__class__ , error)
 
 
 @bot.command(aliases=['vchk'])
