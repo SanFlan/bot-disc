@@ -58,10 +58,15 @@ async def add(ctx, entry: str):
 @bot.command(aliases=['aefu'])
 async def add_entry_for_user(ctx, user: discord.User, *, entry:str):
     if get_entry_from_user(user.id) != None:
+        await ctx.send("Usuario ya tiene una propuesta")
         return
-    if get_entry_from_name(entry.lower()) != None:
-            await ctx.send("esa serie esta repetida")
-            return
+    exs_entry = get_entry_from_name(entry.lower())
+    if exs_entry != None:
+        await ctx.send(
+            "Esa serie esta repetida, fue propuesta por @{}".format(
+                bot.get_user(exs_entry.user_id)
+                ))
+        return
     add_entry(user.id, entry)
     await ctx.send("Se Agrego La Entry!")
 
