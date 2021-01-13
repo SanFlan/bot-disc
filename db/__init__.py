@@ -1,6 +1,10 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+# NOTE: Eliminar al llevar a productivo <--
+from sqlalchemy.event import listen
+from sqlalchemy import event, DDL
+# -->
 
 DATABASE_URI = 'sqlite:///:memory:'
 Base = declarative_base()
@@ -15,15 +19,26 @@ class Entry(Base):
 
     def __repr__(self):
         return "user_id:{} entry_name:{} tickets{}".format(
-                user_id,
-                entry_name,
-                tickets
+                'user_id',
+                'entry_name',
+                'tickets'
                 )
 
-engine = create_engine(DATABASE_URI, echo=True)
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+# NOTE: Eliminar al llevar a productivo <--
+@event.listens_for(Entry.__table__, 'after_create')
+def insert_initial_values(*args, **kwargs):
+    print("test")
+    session = Session()
+    session.add(Entry(user_id='Berger#0398',   entry_name='Boku no Pico',       tickets=1))
+    session.add(Entry(user_id='jugoprex#8888', entry_name='Ishuzoku Reviewers', tickets=1))
+    session.add(Entry(user_id='Apika#7021',    entry_name='Nazo No Kanojo X',   tickets=1))
+    session.commit()
+    session.close()
+# -->
 
+engine = create_engine(DATABASE_URI, echo=True)
+Session = sessionmaker(bind=engine)
+Base.metadata.create_all(engine)
 
 def remove_entry(entry):
     session = Session()
@@ -68,5 +83,3 @@ def increment_tickets():
             entry.tickets += 5
     session.commit()
     session.close()
-
-
