@@ -29,9 +29,9 @@ class Entry(Base):
 def insert_initial_values(*args, **kwargs):
     print("test")
     session = Session()
-    session.add(Entry(user_id='Berger#0398',   entry_name='Boku no Pico',       tickets=1))
-    session.add(Entry(user_id='jugoprex#8888', entry_name='Ishuzoku Reviewers', tickets=1))
-    session.add(Entry(user_id='Apika#7021',    entry_name='Nazo No Kanojo X',   tickets=1))
+    session.add(Entry(user_id='151497085718495232',   entry_name='Boku no Pico',       tickets=1))
+    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', tickets=1))
+    session.add(Entry(user_id='206939481058574337',    entry_name='Nazo No Kanojo X',   tickets=1))
     session.commit()
     session.close()
 # -->
