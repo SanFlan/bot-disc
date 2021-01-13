@@ -65,7 +65,7 @@ def increment_tickets():
     session = Session()
     for entry in session.query(Entry):
         if entry.tickets != 5:
-            entry.tickets += 5
+            entry.tickets += 1
     session.commit()
     session.close()
 

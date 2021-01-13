@@ -29,8 +29,8 @@ async def roll(ctx):
     member = ctx.guild.get_member(entry.user_id)
     if member.voice != None:
         await ctx.send(
-                "Preparate el pochoclo <@{}> que salio tu serie".format(
-                    entry.user_id
+                 "Parece que <@{}> está conectade a {}, así que prepará el pochoclo que salio tu serie".format(
+                    entry.user_id, member.voice.channel
                     ))
         remove_entry(entry)
         return
@@ -48,7 +48,7 @@ async def add(ctx, entry: str):
             await ctx.send("esa serie esta repetida")
             return
     add_entry(ctx.author.id, entry)
-    await ctx.send("Se Agrego La Entry!")
+    await ctx.send("Se agregó la serie :picardia:!")
 
 
 @bot.command(aliases=['aefu'])
@@ -64,7 +64,7 @@ async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
                 ))
         return
     add_entry(user.id, entry)
-    await ctx.send("Se Agrego La Entry!")
+    await ctx.send("Se agregó la serie :picardia:!")
 
 
 @add_entry_for_user.error
@@ -103,7 +103,7 @@ async def is_in_voice(ctx, user: discord.User):
     print(ctx.guild.get_member(user.id))
     member = ctx.guild.get_member(user.id)
     if member.voice != None:
-        await ctx.send("El usuario mencionado esta en voice!")
+        await ctx.send("El usuario mencionado esta en el canal {}!".format(member.voice.channel))
         return
     await ctx.send("El usuario mencionado no esta en voice :(")
     return
