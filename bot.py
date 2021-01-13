@@ -58,7 +58,7 @@ async def add(ctx, entry: str):
             await ctx.send("esa serie esta repetida")
             return
     add_entry(ctx.author.id, entry)
-    await ctx.send("Se agregó la serie :picardia:!")
+    await ctx.send("Se agregó la serie :picardia:")
 
 
 @bot.command(aliases=['aefu'])
@@ -104,7 +104,7 @@ async def list_db(ctx):
         await ctx.send("No hay entradas")
         return
     for entry in entries:
-        formated_list += "**{}** - {}\n".format(bot.get_user(entry.user_id), entry.entry_name)
+        formated_list += "**{}** - {} - {} ticket(s)\n".format(bot.get_user(entry.user_id), entry.entry_name, entry.tickets)
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
 
