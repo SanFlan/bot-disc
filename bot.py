@@ -26,21 +26,17 @@ async def roll(ctx):
     roll = random.randint(0,entries-1)
     entry = get_all_entries()[roll]
     await ctx.send("{} propuesta por <@{}>".format(entry.entry_name, entry.user_id))
-    try:
-        member = ctx.guild.get_member(entry.user_id)
-        if member.voice != None:
-            await ctx.send(
-                    "Preparate el pochoclo <@{}> que salio tu serie".format(
-                        entry.user_id
-                        ))
-            remove_entry(entry)
-            return
-        await ctx.send("Parece que <@{}> no esta en vc...".format(
-            entry.user_id
-            ))
-    except Exception as e:
-        await ctx.send("Hubo un error y me hice caca encima {}".format(e))
+    member = ctx.guild.get_member(entry.user_id)
+    if member.voice != None:
+        await ctx.send(
+                "Preparate el pochoclo <@{}> que salio tu serie".format(
+                    entry.user_id
+                    ))
+        remove_entry(entry)
         return
+    await ctx.send("Parece que <@{}> no esta en vc...".format(
+        entry.user_id
+        ))
 
 
 @bot.command()
@@ -56,7 +52,7 @@ async def add(ctx, entry: str):
 
 
 @bot.command(aliases=['aefu'])
-async def add_entry_for_user(ctx, user: discord.User, *, entry:str):
+async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
     if get_entry_from_user(user.id) != None:
         await ctx.send("Usuario ya tiene una propuesta")
         return
@@ -69,6 +65,20 @@ async def add_entry_for_user(ctx, user: discord.User, *, entry:str):
         return
     add_entry(user.id, entry)
     await ctx.send("Se Agrego La Entry!")
+
+
+@add_entry_for_user.error
+async def add_entry_for_user_error(ctx, error):
+    if error.__class__ == commands.errors.MissingRequiredArgument:
+        await ctx.send("Faltan argumentos chinchu '{}'".format(str(error)))
+        return
+    if error.__class__ == commands.errors.BadArgument:
+        await ctx.send("Pifiaste en algun argumento... {}".format(str(error)))
+        return
+    if error.__class__ == commands.errors.MemberNotFound:
+        await ctx.send("No encontre al user".format(error))
+        return
+    print(error.__class__ ,error)
 
 
 @bot.command(aliases=['ldb'])
