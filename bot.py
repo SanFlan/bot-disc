@@ -16,6 +16,7 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
 
+
 @bot.command(name='roll')
 async def roll(ctx):
     entries = len(get_all_entries())
@@ -41,6 +42,7 @@ async def roll(ctx):
         await ctx.send("Hubo un error y me hice caca encima {}".format(e))
         return
 
+
 @bot.command()
 async def add(ctx, entry: str):
     if get_entry_from_user(ctx.message.author.id) != None:
@@ -51,16 +53,17 @@ async def add(ctx, entry: str):
             return
     add_entry(ctx.author.id, entry)
     await ctx.send("Se Agrego La Entry!")
-#async def add(ctx, new_entry: str):
-#    for db_entry in get_all_entries():
-#        if ctx.message.author.id == new_entry.user_id:
-#            await ctx.send("eh loco vos ya propusiste")
-#            return
-#        if new_entry.lower() == (db_entry.entry_name).lower(): 
-#            await ctx.send("esa serie esta repetida")
-#            return
-#    add_entry(ctx.author.id, new_entry)
-#    await ctx.send("Serie Agregada!")
+
+
+@bot.command(aliases=['aefu'])
+async def add_entry_for_user(ctx, user: discord.User, *, entry:str):
+    if get_entry_from_user(user.id) != None:
+        return
+    if get_entry_from_name(entry.lower()) != None:
+            await ctx.send("esa serie esta repetida")
+            return
+    add_entry(user.id, entry)
+    await ctx.send("Se Agrego La Entry!")
 
 
 @bot.command(aliases=['ldb'])
