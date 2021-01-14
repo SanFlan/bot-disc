@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 
-from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user
+from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries
 
 import os
 from dotenv import load_dotenv
@@ -98,13 +98,17 @@ async def list_db(ctx):
         title="Lista de series propuestas y sus autores",
         color=0xFF5733
         )
-    entries = get_all_entries()
     formated_list = ""
+    entries = get_all_entries()
     if len(entries) == 0:
         await ctx.send("No hay entradas")
         return
     for entry in entries:
-        formated_list += "**{}** - {} - {} ticket(s)\n".format(bot.get_user(entry.user_id), entry.entry_name, entry.tickets)
+        formated_list += "**{}** - {} - {} ticket(s)\n".format(
+            bot.get_user(entry.user_id),
+            entry.entry_name,
+            entry.tickets
+            )
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
 
@@ -115,6 +119,26 @@ async def list_db_error(ctx, error):
         await ctx.send("No tenes permisos, que hacias queriendo toquetear?")
     print(error.__class__ , error)
 
+@bot.command(aliases=[ 'lwatched', 'lw'])
+@is_admin()
+async def list_watched(ctx):
+    embed=discord.Embed(
+        title="Lista de series vistas",
+        color=0x85C1E9
+        )
+    formated_list = ""
+    entries = get_viewed_entries()
+    if len(entries) == 0:
+        await ctx.send("No hay entradas")
+        return
+    for entry in entries:
+        formated_list += "**{}** - {} - {}\n".format(
+            entry.entry_name,
+            entry.view_date.strftime("%d %b %Y"),
+            bot.get_user(entry.user_id)
+            )
+    embed.add_field(name="\u200b", value=formated_list)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['vchk'])
 async def is_in_voice(ctx, user: discord.User):
