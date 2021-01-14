@@ -1,28 +1,24 @@
 # BOT PARA ELEGIR SERIES AL AZAR
 
-tiene que implementar las siguientes tareas:
-* agregar una serie chequeando que:
-  - no haya sido propuesta (duplicación)
-  - quien la proponga no tenga otra asignada.
-* tirar un dado para elegir la serie
-* fijarse si un usuario esta conectado (el que eligio la serie que salio)
-* eliminar una serie (manual y automaticamente)
-* adoptar series?
+Tiene que implementar las siguientes tareas:
+- [x] Agregar una serie, asociarlo a su ID de usuario y darle 1 ticket.
+- [x] Prohibir agregar una series ya propuesta.
+- [x] Prohibir al usuario agregar una serie si ya tiene una.
+- [] Eliminar una serie propuesta.
+- [] Tirar un numero random (que no sea mayor a la cantidad de tickets totales entregados) y determinar la serie a ver.
+- [] Avisar al usuario de que su serie salio - [A determinar con el staff] -
+- [] Agregar un ticket a una serie que haya salido pero que no se vio porque su autor no estaba.
+- [] Marcar una serie como vista.
+- [] Mostrar las series con 5 tickets.
+- [] Mostrar las series ya vistas.
+- [] Permitir definir los roles con acceso a este bot.
 
 ## DB
 La db de series propuestas debe tomar la forma de:
 
-| ID (PK) | user  | serie        | cantidad tickets | visto    |
-| ------- | ----- | ------------ | ---------------- | -------- |
-| 1       | Patas | Boku No Pico | 3                | True     |
-
-Cada vez que no sale una serie se le deberia sumar un ticket hasta un maximo de 5 tickets, cada ticket aumenta la chance de que salga una serie.
-
-La ddbbb de series vistas debe tomar la forma de:
-
-| serie        | fecha visto |
-| ------------ | ----------- |
-| Boku No Pico | 23/1/2021   |
+| ID (PK) | user  | serie        | cantidad tickets | fecha_visto |
+| ------- | ----- | ------------ | ---------------- | ------------|
+| 1       | Patas | Boku No Pico | 3                | 25/01/2021  |
 
 ## ROLL
 
