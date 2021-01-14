@@ -1,10 +1,12 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.sqltypes import DateTime
+from datetime import datetime
 # NOTE: Eliminar al llevar a productivo <--
 from sqlalchemy.event import listen
 from sqlalchemy import event, DDL
-from sqlalchemy.sql.sqltypes import DateTime
 # -->
 
 DATABASE_URI = 'sqlite:///:memory:'
@@ -16,7 +18,7 @@ class Entry(Base):
     id = Column(Integer, primary_key = True)
     user_id = Column(Integer)
     entry_name = Column(String(200))
-    tickets = Column(Integer, default='1')
+    tickets = Column(Integer, server_default='1')
     view_date = Column(DateTime)
 
     def __repr__(self):
@@ -30,11 +32,10 @@ class Entry(Base):
 # NOTE: Eliminar al llevar a productivo <--
 @event.listens_for(Entry.__table__, 'after_create')
 def insert_initial_values(*args, **kwargs):
-    print("test")
     session = Session()
     session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico'))
-    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers'))
-    session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X'))
+    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', view_date=datetime.now() ))
+    session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now()))
     session.commit()
     session.close()
 # -->
@@ -64,6 +65,11 @@ def get_all_entries():
     session.close()
     return entries
 
+def get_viewed_entries():
+    session = Session()
+    entries = session.query(Entry).filter(Entry.view_date != None).all()
+    session.close()
+    return entries
 
 def get_entry_from_name(entry_name):
     session = Session()
