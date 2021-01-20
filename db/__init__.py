@@ -44,12 +44,29 @@ engine = create_engine(DATABASE_URI, echo=True)
 Session = sessionmaker(bind=engine)
 Base.metadata.create_all(engine)
 
-def remove_entry(entry):
+def get_all_entries():
     session = Session()
-    session.delete(entry)
-    session.commit()
+    entries = session.query(Entry).all()
     session.close()
+    return entries
 
+def get_entry_from_name(entry_name):
+    session = Session()
+    entry = session.query(Entry).filter(Entry.entry_name.lower() == entry_name.lower()).one_or_none()
+    session.close()
+    return entry
+
+def get_entry_from_user(user_id):
+    session = Session()
+    entry = session.query(Entry).filter(Entry.user_id == user_id).one_or_none()
+    session.close()
+    return entry
+
+def get_viewed_entries():
+    session = Session()
+    entries = session.query(Entry).filter(Entry.view_date != None).all()
+    session.close()
+    return entries
 
 def add_entry(user_id, entry_name):
     session = Session()
@@ -58,32 +75,22 @@ def add_entry(user_id, entry_name):
     session.commit()
     session.close()
 
-
-def get_all_entries():
+def remove_entry(entry):
     session = Session()
-    entries = session.query(Entry).all()
+    session.delete(entry)
+    session.commit()
     session.close()
-    return entries
 
-def get_viewed_entries():
-    session = Session()
-    entries = session.query(Entry).filter(Entry.view_date != None).all()
-    session.close()
-    return entries
-
-def get_entry_from_name(entry_name):
+def set_date_to_entry(entry_name, new_date):
     session = Session()
     entry = session.query(Entry).filter(Entry.entry_name == entry_name).one_or_none()
+    if new_date == Null:
+        entry.view_date = datetime.now()
+    else:
+        # TODO: revisar si funciona correctamente con otras fechas
+        entry.view_date = datetime.strptime(new_date, "%y-%m-%d").date()
+    session.commit()
     session.close()
-    return entry
-
-
-def get_entry_from_user(user_id):
-    session = Session()
-    entry = session.query(Entry).filter(Entry.user_id == user_id).one_or_none()
-    session.close()
-    return entry
-
 
 def increment_tickets():
     session = Session()
