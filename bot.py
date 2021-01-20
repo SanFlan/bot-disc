@@ -5,7 +5,9 @@ from discord import client
 from discord.ext import commands
 import random
 
-from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries
+from sqlalchemy.sql.elements import Null
+
+from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry
 
 import os
 from dotenv import load_dotenv
@@ -143,9 +145,18 @@ async def add_entry_for_user_error(ctx, error):
         return
     print(error.__class__ ,error)
 
+@bot.command(aliases=['chd'])
+async def change_view_date(ctx, entry:str, new_date=Null):
+    # FIX: Error BadARgument al pasar parametro new_date
+    # TODO: Agregar exceptions
+    try:
+        set_date_to_entry(entry, new_date)
+        await ctx.send("Se cambio la fecha :picardia:")
+    except:
+        pass
 
 @bot.command(aliases=['ldb'])
-@is_admin()
+#@is_admin()
 async def list_db(ctx):
     embed=discord.Embed(
         title="Lista de series propuestas y sus autores",
@@ -172,8 +183,8 @@ async def list_db_error(ctx, error):
         await ctx.send("No tenes permisos, que hacias queriendo toquetear?")
     print(error.__class__ , error)
 
-@bot.command(aliases=[ 'lwatched', 'lw'])
-@is_admin()
+@bot.command(aliases=['lwatched', 'lw'])
+#@is_admin()
 async def list_watched(ctx):
     embed=discord.Embed(
         title="Lista de series vistas",
