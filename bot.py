@@ -107,7 +107,7 @@ async def roll_reaction(ctx):
 
 
 @bot.command(aliases=['aefu', 'add'])
-async def add_entry_for_user(ctx, entry:str, user: discord.Member):
+async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
     if get_entry_from_user(user.id) != None:
         await ctx.send("Usuario ya tiene una propuesta")
         return
@@ -215,7 +215,7 @@ async def commands(ctx):
         )
     formated_list = str('''**roll** = rollea entre las series propuestas. Es necesario tener un rol con jerarquía correspondiente.
 **add, aefu** = *'add entry for user'*. agregar una serie a la lista. Es necesario tener un rol con jerarquía correspondiente. 
-    *Ejemplo: add Baccano! @Tensz*
+    *Ejemplo: add @Tensz Baccano!*
 **ldb** = *'list data base'*. Imprime la base de datos con nombre de series, el usuario que propuso cada serie y sus tickets correspondientes.
 **tick** = suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer. Es necesario tener un rol con jerarquía correspondiente.
 ''')
