@@ -59,22 +59,6 @@ async def roll(ctx):
         ))
 
 
-@bot.event
-async def on_reaction_add(reaction, user):
-#async def on_raw_reaction_add(payload, self):
-    emoji = reaction.emoji
-
-    if user.bot:
-        return
-        
-    if emoji == emojis["dice"]:
-        await roll_reaction(discord.ext.commands.Context)
-        #await message.channel.send("I am responding to your message")
-        return
-    else:
-        return
-
-
 @bot.command(name='roll_reaction', aliases=['rc'])
 async def roll_reaction(ctx):
     end = False
