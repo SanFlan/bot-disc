@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord import message
 from discord import client
@@ -21,7 +22,7 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
 
-emojis = {
+EMOJIS = {
     'thumbs_up': '\U0001F44D',
     'eye': '\U0001F441',
     'dice': '\U0001F3B2'
@@ -61,40 +62,47 @@ async def roll(ctx):
 
 @bot.command(name='roll_reaction', aliases=['rc'])
 async def roll_reaction(ctx):
-    end = False
     entries = get_all_entries()
     entries_count = len(entries)
 
-    def check_emoji():
-        return str(ctx.reaction.emoji) == emojis[roll]
+    def check_emoji(reaction, user):
+        return user == ctx.message.author and str(reaction.emoji) in EMOJIS.values()
 
     if entries_count == 0:
-        message = await ctx.send("No hay entradas")
-        await message.add_reaction(emojis["dice"])
+        m = await ctx.send("No hay entradas")
         return
-    
-    while end == False:
-        end = True
+
+    end_loop = False
+    while end_loop == False:
         roll = random.randint(0,entries_count-1)
         entry = entries[roll]
         member = ctx.guild.get_member(entry.user_id)
-        text = "**{}** propuesta por <@{}>. ".format(entry.entry_name, entry.user_id)
+
+        text = "**{}** propuesta por <@{}>.\n".format(entry.entry_name, entry.user_id)
         if member.voice != None:
-            text += "Parece que está conectade en {}\n <@{}> prepará el pochoclo que salio tu serie!".format(
-                        member.voice.channel,
-                        entry.user_id
-                        )
-            message = await ctx.send(text)
-            await message.add_reaction(emojis["eye"])
-            await message.add_reaction(emojis["dice"])
+            text += "Se encuentra en vc {}. Prepará el pochoclo que salio tu serie!".format(member.voice.channel)
+
+            m = await ctx.send(text)
+            await m.add_reaction(EMOJIS["eye"])
+            await m.add_reaction(EMOJIS["dice"])
             #remove_entry(entry)
         else:
-            text += "\nParece que <@{}> no esta en vc...".format(entry.user_id)
-            message = await ctx.send(text)
-            await message.add_reaction(emojis["dice"])
+            text += "Parece que <@{}> no esta en vc...".format(entry.user_id)
+
+            m = await ctx.send(text)
+            await m.add_reaction(EMOJIS["dice"])
         
-        await bot.wait_for('reaction_add', check=check_emoji())
-        end = False
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_emoji)
+            if reaction.emoji == EMOJIS["dice"]:
+                continue
+            # TODO: Agregar funcion para marcar serie como vista
+            #elif reaction.emoji == EMOJIS["eye"]: 
+        except asyncio.TimeoutError:
+            pass
+        
+        await m.clear_reactions()
+        end_loop = True
 
 
 @bot.command()
