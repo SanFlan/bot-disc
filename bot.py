@@ -4,9 +4,6 @@ from discord import client
 from discord.ext import commands
 import random
 
-from discord.ext.commands.core import command
-from sqlalchemy.sql.expression import false
-
 from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries
 
 import os
