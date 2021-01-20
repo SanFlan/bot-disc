@@ -1,6 +1,11 @@
 import discord
+from discord import message
+from discord import client
 from discord.ext import commands
 import random
+
+from discord.ext.commands.core import command
+from sqlalchemy.sql.expression import false
 
 from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries
 
@@ -16,6 +21,11 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
 
+emojis = {
+    'thumbs_up': '\U0001F44D',
+    'eye': '\U0001F441',
+    'dice': '\U0001F3B2'
+}
 
 def is_admin():
     async def check_role(ctx):
@@ -47,6 +57,60 @@ async def roll(ctx):
     await ctx.send("Parece que <@{}> no esta en vc...".format(
         entry.user_id
         ))
+
+
+@bot.event
+async def on_reaction_add(reaction, user):
+#async def on_raw_reaction_add(payload, self):
+    emoji = reaction.emoji
+
+    if user.bot:
+        return
+        
+    if emoji == emojis["dice"]:
+        await roll_reaction(discord.ext.commands.Context)
+        #await message.channel.send("I am responding to your message")
+        return
+    else:
+        return
+
+
+@bot.command(name='roll_reaction', aliases=['rc'])
+async def roll_reaction(ctx):
+    end = False
+    entries = get_all_entries()
+    entries_count = len(entries)
+
+    def check_emoji():
+        return str(ctx.reaction.emoji) == emojis[roll]
+
+    if entries_count == 0:
+        message = await ctx.send("No hay entradas")
+        await message.add_reaction(emojis["dice"])
+        return
+    
+    while end == False:
+        end = True
+        roll = random.randint(0,entries_count-1)
+        entry = entries[roll]
+        member = ctx.guild.get_member(entry.user_id)
+        text = "**{}** propuesta por <@{}>. ".format(entry.entry_name, entry.user_id)
+        if member.voice != None:
+            text += "Parece que está conectade en {}\n <@{}> prepará el pochoclo que salio tu serie!".format(
+                        member.voice.channel,
+                        entry.user_id
+                        )
+            message = await ctx.send(text)
+            await message.add_reaction(emojis["eye"])
+            await message.add_reaction(emojis["dice"])
+            #remove_entry(entry)
+        else:
+            text += "\nParece que <@{}> no esta en vc...".format(entry.user_id)
+            message = await ctx.send(text)
+            await message.add_reaction(emojis["dice"])
+        
+        await bot.wait_for('reaction_add', check=check_emoji())
+        end = False
 
 
 @bot.command()
