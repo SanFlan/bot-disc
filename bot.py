@@ -5,9 +5,6 @@ from discord import client
 from discord.ext import commands
 import random
 
-from discord.ext.commands.core import command
-from sqlalchemy.sql.expression import false
-
 from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries
 
 import os
@@ -105,20 +102,20 @@ async def roll_reaction(ctx):
         end_loop = True
 
 
-@bot.command()
-async def add(ctx, entry: str):
-    if get_entry_from_user(ctx.message.author.id) != None:
-        await ctx.send("eh loco vos ya propusiste")
-        return
-    if get_entry_from_name(entry.lower()) != None:
-            await ctx.send("esa serie esta repetida")
-            return
-    add_entry(ctx.author.id, entry)
-    await ctx.send("Se agregó la serie :picardia:")
+#@bot.command()
+#async def add(ctx, entry: str):
+#    if get_entry_from_user(ctx.message.author.id) != None:
+#        await ctx.send("eh loco vos ya propusiste")
+#        return
+#    if get_entry_from_name(entry.lower()) != None:
+#            await ctx.send("esa serie esta repetida")
+#            return
+#    add_entry(ctx.author.id, entry)
+#    await ctx.send("Se agregó la serie :picardia:")
 
 
-@bot.command(aliases=['aefu'])
-async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
+@bot.command(aliases=['aefu', 'add'])
+async def add_entry_for_user(ctx, entry:str, user: discord.Member):
     if get_entry_from_user(user.id) != None:
         await ctx.send("Usuario ya tiene una propuesta")
         return
@@ -130,7 +127,7 @@ async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
                 ))
         return
     add_entry(user.id, entry)
-    await ctx.send("Se agregó la serie :picardia:!")
+    await ctx.send("Se agregó la serie :picardia:")
 
 
 @add_entry_for_user.error
@@ -142,7 +139,7 @@ async def add_entry_for_user_error(ctx, error):
         await ctx.send("Pifiaste en algun argumento... {}".format(str(error)))
         return
     if error.__class__ == commands.errors.MemberNotFound:
-        await ctx.send("No encontre al user".format(error))
+#        await ctx.send("No encontre al user".format(str(error)))
         return
     print(error.__class__ ,error)
 
@@ -217,6 +214,21 @@ async def tickets(ctx):
             await ctx.send("Sumando tickets... beep boop...")
             return
     await ctx.send("Privilegios insuficientes")
+
+@bot.command(aliases=['info'])
+async def commands(ctx):
+    embed=discord.Embed(
+        title="Lista de comandos",
+        color=0x3385ff
+        )
+    formated_list = str('''**roll** = rollea entre las series propuestas. Es necesario tener un rol con jerarquía correspondiente.
+**add, aefu** = *'add entry for user'*. agregar una serie a la lista. Es necesario tener un rol con jerarquía correspondiente. 
+    *Ejemplo: add Baccano! @Tensz*
+**ldb** = *'list data base'*. Imprime la base de datos con nombre de series, el usuario que propuso cada serie y sus tickets correspondientes.
+**tick** = suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer. Es necesario tener un rol con jerarquía correspondiente.
+''')
+    embed.add_field(name="\u200b", value=formated_list)
+    await ctx.send(embed=embed)
 
 
 bot.run(token)
