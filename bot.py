@@ -132,14 +132,14 @@ async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
 
 @add_entry_for_user.error
 async def add_entry_for_user_error(ctx, error):
-    if error.__class__ == commands.errors.MissingRequiredArgument:
+    if error.__class__ == commands.MissingRequiredArgument:
         await ctx.send("Faltan argumentos chinchu '{}'".format(error.param))
         return
-    if error.__class__ == commands.errors.BadArgument:
+    if error.__class__ == commands.BadArgument:
         await ctx.send("Pifiaste en algun argumento... {}".format(str(error)))
         return
-    if error.__class__ == commands.errors.MemberNotFound:
-#        await ctx.send("No encontre al user".format(str(error)))
+    if error.__class__ == commands.MemberNotFound:
+        await ctx.send("No encontre al user".format(str(error)))
         return
     print(error.__class__ ,error)
 
@@ -216,7 +216,7 @@ async def tickets(ctx):
     await ctx.send("Privilegios insuficientes")
 
 @bot.command(aliases=['info'])
-async def commands(ctx):
+async def list_commands(ctx):
     embed=discord.Embed(
         title="Lista de comandos",
         color=0x3385ff
