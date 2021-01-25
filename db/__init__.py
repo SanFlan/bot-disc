@@ -33,7 +33,7 @@ class Entry(Base):
 @event.listens_for(Entry.__table__, 'after_create')
 def insert_initial_values(*args, **kwargs):
     session = Session()
-    session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico'))
+    #session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico'))
     session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', view_date=datetime.now() ))
     session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now()))
     session.commit()
@@ -91,8 +91,7 @@ def set_date_to_entry(entry_name, new_date):
     if new_date == Null:
         entry.view_date = datetime.now()
     else:
-        # TODO: revisar si funciona correctamente con otras fechas
-        entry.view_date = datetime.strptime(new_date, "%y-%m-%d").date()
+        entry.view_date = datetime.strptime(new_date, "%d-%m-%Y").date()
     session.commit()
     session.close()
 
