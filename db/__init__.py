@@ -50,10 +50,10 @@ def get_all_entries():
     session.close()
     return entries
 
-def get_entry_from_name(entry_name):
+def get_entry_from_name(new_entry_name:str):
     session = Session()
     entry = session.query(Entry).filter(
-            Entry.entry_name.lower() == entry_name.lower()
+            Entry.entry_name.ilike("%{}%".format(new_entry_name))
             ).one_or_none()
     session.close()
     return entry
@@ -87,9 +87,7 @@ def remove_entry(entry):
 
 def set_date_to_entry(entry_name, new_date):
     session = Session()
-    entry = session.query(Entry).filter(
-            Entry.entry_name == entry_name
-            ).one_or_none()
+    entry = get_entry_from_name(entry_name)
     if new_date == Null:
         entry.view_date = datetime.now()
     else:
