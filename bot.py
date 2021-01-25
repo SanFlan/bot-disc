@@ -3,6 +3,7 @@ import discord
 from discord import message
 from discord import client
 from discord.ext import commands
+from datetime import datetime
 import random
 
 from sqlalchemy.sql.elements import Null
@@ -76,7 +77,7 @@ async def roll_reaction(ctx):
         roll = random.randint(0,entries_count-1)
         entry = entries[roll]
         member = ctx.guild.get_member(entry.user_id)
-
+     
         text = "**{}** propuesta por <@{}>.\n".format(entry.entry_name, entry.user_id)
         if member.voice != None:
             text += "Se encuentra en vc {}. Prepará el pochoclo que salio tu serie!".format(member.voice.channel)
@@ -95,12 +96,14 @@ async def roll_reaction(ctx):
             reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_emoji)
             if reaction.emoji == EMOJIS["dice"]:
                 continue
-            # TODO: Agregar funcion para marcar serie como vista
-            #elif reaction.emoji == EMOJIS["eye"]: 
+            elif reaction.emoji == EMOJIS['eye']:
+                # BUG: si se lanzan varios rolls, todos van a ser enviados al change_view_date
+                await change_view_date(ctx, entry.entry_name)
+                break
         except asyncio.TimeoutError:
             pass
-        
-        await m.clear_reactions()
+
+        #await m.clear_reactions()        
         end_loop = True
 
 
@@ -146,14 +149,14 @@ async def add_entry_for_user_error(ctx, error):
     print(error.__class__ ,error)
 
 @bot.command(aliases=['chd'])
-async def change_view_date(ctx, entry:str, new_date=Null):
-    # FIX: Error BadARgument al pasar parametro new_date
-    # TODO: Agregar exceptions
-    try:
-        set_date_to_entry(entry, new_date)
-        await ctx.send("Se cambio la fecha :picardia:")
-    except:
-        pass
+async def change_view_date(ctx, entry:str, new_date:str=Null):
+    set_date_to_entry(entry, new_date)
+    entry = get_entry_from_name(entry)
+    await ctx.send("Serie **{}** marcada como vista el {}".format(
+        entry.entry_name,
+        entry.view_date.strftime("%d-%m-%Y")
+    ))
+
 
 @bot.command(aliases=['ldb'])
 #@is_admin()
