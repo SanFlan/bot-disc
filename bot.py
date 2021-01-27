@@ -9,7 +9,8 @@ import random
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.expression import false, true
 
-from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry
+from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry, get_5_ticks, change_user_id_to_entry
+
 
 import os
 from dotenv import load_dotenv
@@ -236,6 +237,7 @@ async def tickets(ctx):
         if str(role) == 'el mas pijudo':
             increment_tickets()
             await ctx.send("Sumando tickets... beep boop...")
+            await list_db(ctx) 
             return
     await ctx.send("Privilegios insuficientes")
 
@@ -249,10 +251,52 @@ async def list_commands(ctx):
 **add, aefu** = *'add entry for user'*. agregar una serie a la lista. Es necesario tener un rol con jerarquía correspondiente. 
     *Ejemplo: add @Tensz Baccano!*
 **ldb** = *'list data base'*. Imprime la base de datos con nombre de series, el usuario que propuso cada serie y sus tickets correspondientes.
+**lda** = Imprime la base de datos de las series adoptables, aka con 5 tickets.
+**adopt** = 'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.
+    *Ejemplo: adopt @BravelyCold Ishuzoku Reviewers*
 **tick** = suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer. Es necesario tener un rol con jerarquía correspondiente.
 ''')
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
+
+@bot.command(aliases=['lda'])
+async def list_adopt(ctx):
+    #lo siguiente es codigo copiado de ldb pero solo las series con 5 tickets
+    adoptable = get_5_ticks()
+    embed=discord.Embed(
+    title="Lista de series adoptables",
+    color=0xebae34
+    )
+    formated_list = ""
+    entries = adoptable
+    if len(entries) == 0:
+        await ctx.send("No hay series adoptables")
+        return
+    for entry in entries:
+        formated_list += "**{}** - {} - {} ticket(s)\n".format(
+            bot.get_user(entry.user_id),
+            entry.entry_name,
+            entry.tickets
+            )
+    embed.add_field(name="\u200b", value=formated_list)
+    await ctx.send(embed=embed)
+
+@bot.command(aliases=['adopt'])
+#@is_admin()
+async def act_adopt(ctx, user: discord.Member, *, entry:str):
+    adoptable = get_5_ticks()
+    nombres = []
+    for serie in adoptable:
+        nombres.append(serie.entry_name.lower())
+    if get_entry_from_user(user.id) != None:
+        await ctx.send("Usuario ya tiene una propuesta, primero borrarla e intentar de nuevo")
+        return
+    print(nombres)
+    if not(entry.lower() in nombres):
+        await ctx.send('Esta serie no es adoptable')
+        return
+    change_user_id_to_entry(entry, user.id)
+    await ctx.send("Se agregó la serie :picardia:")
 
 
 bot.run(token)
