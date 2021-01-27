@@ -92,13 +92,14 @@ def set_date_to_entry(entry_name, new_date):
         entry.view_date = datetime.now()
     else:
         entry.view_date = datetime.strptime(new_date, "%d-%m-%Y").date()
+    session.add(entry)
     session.commit()
     session.close()
 
 def increment_tickets():
     session = Session()
     for entry in session.query(Entry):
-        if entry.tickets != 5:
+        if entry.tickets < 5:
             entry.tickets += 1
     session.commit()
     session.close()
