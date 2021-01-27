@@ -34,8 +34,8 @@ class Entry(Base):
 def insert_initial_values(*args, **kwargs):
     session = Session()
     #session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico'))
-    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', view_date=datetime.now() ))
-    session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now()))
+    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', view_date=datetime.now(), tickets = 5))
+    session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now(), tickets = 5))
     session.commit()
     session.close()
 # -->
@@ -95,6 +95,14 @@ def set_date_to_entry(entry_name, new_date):
     session.commit()
     session.close()
 
+def change_user_id_to_entry(entry_name, user_id):
+    session = Session()
+    entry = get_entry_from_name(entry_name)
+    entry.user_id = user_id
+    session.add(entry)
+    session.commit()
+    session.close()
+
 def increment_tickets():
     session = Session()
     for entry in session.query(Entry):
@@ -102,3 +110,9 @@ def increment_tickets():
             entry.tickets += 1
     session.commit()
     session.close()
+
+def get_5_ticks():
+    session = Session()
+    entries = session.query(Entry).filter_by(tickets=5).all()
+    session.close()
+    return entries
