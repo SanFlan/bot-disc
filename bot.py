@@ -243,7 +243,8 @@ async def list_commands(ctx):
     *Ejemplo: add @Tensz Baccano!*
 **ldb** = *'list data base'*. Imprime la base de datos con nombre de series, el usuario que propuso cada serie y sus tickets correspondientes.
 **lda** = Imprime la base de datos de las series adoptables, aka con 5 tickets.
-**adopt** = *'adopt @BravelyCold Ishuzoku Reviewers'*. 'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.
+**adopt** = 'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.
+    *Ejemplo: adopt @BravelyCold Ishuzoku Reviewers*
 **tick** = suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer. Es necesario tener un rol con jerarquía correspondiente.
 ''')
     embed.add_field(name="\u200b", value=formated_list)
