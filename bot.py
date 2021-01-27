@@ -197,9 +197,9 @@ async def list_db_error(ctx, error):
         await ctx.send("No tenes permisos, que hacias queriendo toquetear?")
     print(error.__class__ , error)
 
-@bot.command(aliases=['lwatched', 'lw'])
+@bot.command(aliases=['lwatched', 'lwch'])
 #@is_admin()
-async def list_watched(ctx):
+async def list_watcheds(ctx):
     embed=discord.Embed(
         title="Lista de series vistas",
         color=0x85C1E9
@@ -247,16 +247,36 @@ async def list_commands(ctx):
         title="Lista de comandos",
         color=0x3385ff
         )
-    formated_list = str('''**roll** = rollea entre las series propuestas. Es necesario tener un rol con jerarquía correspondiente.
-**add, aefu** = *'add entry for user'*. agregar una serie a la lista. Es necesario tener un rol con jerarquía correspondiente. 
-    *Ejemplo: add @Tensz Baccano!*
-**ldb** = *'list data base'*. Imprime la base de datos con nombre de series, el usuario que propuso cada serie y sus tickets correspondientes.
-**lda** = Imprime la base de datos de las series adoptables, aka con 5 tickets.
-**adopt** = 'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.
-    *Ejemplo: adopt @BravelyCold Ishuzoku Reviewers*
-**tick** = suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer. Es necesario tener un rol con jerarquía correspondiente.
-''')
-    embed.add_field(name="\u200b", value=formated_list)
+    dict_list = {
+        'roll': """
+            Rollea entre las series propuestas. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
+            con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+        """.format(EMOJIS["dice"], EMOJIS["eye"]),
+        'chd': """
+            *(change view date)* Cambia la fecha de visto de una serie. El valor serie y fecha tienen que encontrarse \
+            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY.
+            *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
+            """,
+        'add, aefu': """
+            *(add entry for user)* Agrega una serie a la lista.
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+            *Ejemplo: add @Tensz Baccano!*
+            """,
+        'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie y sus tickets correspondientes.",
+        'lwch': "*(list watcheds)* Muestra las series ya vistas",
+        'lda': "*(list adoptables)* Imprime la base de datos de las series adoptables, aka con 5 tickets.",
+        'adopt': """
+            'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.",
+            Ejemplo: adopt @BravelyCold Ishuzoku Reviewers*
+            """,
+        'tick': """
+            suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer.
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+            """
+    }
+    for k, v in dict_list.items():
+        embed.add_field(name=k, value=v, inline=False)
     await ctx.send(embed=embed)
 
 @bot.command(aliases=['lda'])
