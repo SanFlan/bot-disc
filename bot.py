@@ -29,14 +29,23 @@ EMOJIS = {
     'dice': '\U0001F3B2'
 }
 
+def is_org():
+    async def __check_role(ctx):
+        member = ctx.guild.get_member(ctx.author.id)
+        for role in member.roles:
+            if role.id == 744370996148174890:
+                return True
+        return False
+    return commands.check(__check_role)
+
 def is_admin():
-    async def check_role(ctx):
+    async def __check_role(ctx):
         member = ctx.guild.get_member(ctx.author.id)
         for role in member.roles:
             if role.permissions.administrator == True:
                 return True
         return False
-    return commands.check(check_role)
+    return commands.check(__check_role)
 
 
 @bot.command(name='roll')
