@@ -7,6 +7,7 @@ from datetime import datetime
 import random
 
 from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.expression import false, true
 
 from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry
 
@@ -93,17 +94,16 @@ async def roll_reaction(ctx):
             await m.add_reaction(EMOJIS["dice"])
         
         try:
-            reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_emoji)
-            if reaction.emoji == EMOJIS["dice"]:
-                continue
-            elif reaction.emoji == EMOJIS['eye']:
-                # BUG: si se lanzan varios rolls, todos van a ser enviados al change_view_date
-                await change_view_date(ctx, entry.entry_name)
-                break
+            reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check_emoji)
+            if m.id == reaction.message.id:
+                if reaction.emoji == EMOJIS["dice"]:
+                    continue
+                elif reaction.emoji == EMOJIS["eye"]:
+                    await change_view_date(ctx, entry.entry_name)
+                    break
         except asyncio.TimeoutError:
             pass
 
-        #await m.clear_reactions()        
         end_loop = True
 
 
@@ -156,6 +156,7 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
         entry.entry_name,
         entry.view_date.strftime("%d-%m-%Y")
     ))
+    return
 
 
 @bot.command(aliases=['ldb'])
