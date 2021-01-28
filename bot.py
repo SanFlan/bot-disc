@@ -1,16 +1,18 @@
 import asyncio
+import random
 import discord
+from datetime import datetime
 from discord import message
 from discord import client
 from discord.ext import commands
-from datetime import datetime
-import random
+from discord.ext.commands.errors import CommandInvokeError
+
 
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.expression import false, true
 
-from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry, get_5_ticks, change_user_id_to_entry
-
+#from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry, get_5_ticks, change_user_id_to_entry
+from db import *
 
 import os
 from dotenv import load_dotenv
@@ -25,9 +27,9 @@ intents.members = True
 bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
 
 EMOJIS = {
-    'thumbs_up': '\U0001F44D',
     'eye': '\U0001F441',
-    'dice': '\U0001F3B2'
+    'dice': '\U0001F3B2',
+    'speaker': '\U0001F50A'
 }
 
 def is_org():
@@ -49,84 +51,66 @@ def is_admin():
     return commands.check(__check_role)
 
 
-@bot.command(name='roll')
-async def roll(ctx):
-    entries = len(get_all_entries())
-    if entries == 0:
-        await ctx.send("No hay entradas")
-        return
-    roll = random.randint(0,entries-1)
-    entry = get_all_entries()[roll]
-    await ctx.send("{} propuesta por <@{}>".format(entry.entry_name, entry.user_id))
-    member = ctx.guild.get_member(entry.user_id)
-    if member.voice != None:
-        await ctx.send(
-                 "Parece que <@{}> está conectade a {}, así que prepará el pochoclo que salio tu serie".format(
-                    entry.user_id, member.voice.channel
-                    ))
-        remove_entry(entry)
-        return
-    await ctx.send("Parece que <@{}> no esta en vc...".format(
-        entry.user_id
-        ))
-
-
-@bot.command(name='roll_reaction', aliases=['rc'])
-async def roll_reaction(ctx):
-    entries = get_all_entries()
-    entries_count = len(entries)
-
+@bot.command(name='roll_reaction', aliases=['rr'])
+async def roll_reaction(ctx, entries=Null):
     def check_emoji(reaction, user):
-        return user == ctx.message.author and str(reaction.emoji) in EMOJIS.values()
-
-    if entries_count == 0:
-        m = await ctx.send("No hay entradas")
-        return
+        return user == ctx.message.author and (
+            str(reaction.emoji) == EMOJIS['eye'] or str(reaction.emoji) == EMOJIS['dice']
+        )
+    
+    if entries == Null:
+        entries = get_not_viewed_entries()
 
     end_loop = False
     while end_loop == False:
-        roll = random.randint(0,entries_count-1)
-        entry = entries[roll]
+        try:
+            roll = random.randint(0,len(entries)-1)
+            entry = entries[roll]
+        except:
+            return await ctx.send("No hay series para ver!")
+
         member = ctx.guild.get_member(entry.user_id)
      
-        text = "**{}** propuesta por <@{}>.\n".format(entry.entry_name, entry.user_id)
-        if member.voice != None:
-            text += "Se encuentra en vc {}. Prepará el pochoclo que salio tu serie!".format(member.voice.channel)
-
-            m = await ctx.send(text)
-            await m.add_reaction(EMOJIS["eye"])
-            await m.add_reaction(EMOJIS["dice"])
-            #remove_entry(entry)
-        else:
-            text += "Parece que <@{}> no esta en vc...".format(entry.user_id)
-
-            m = await ctx.send(text)
-            await m.add_reaction(EMOJIS["dice"])
+        m = await ctx.send("**{}** propuesta por **{}**. Prepará el pochoclo que salio tu serie!".format(
+            entry.entry_name,
+            member.mention
+        ))
+        for e in ["eye", "dice"]:
+            await m.add_reaction(EMOJIS[e])
         
         try:
-            reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check_emoji)
+            reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check_emoji)
             if m.id == reaction.message.id:
                 if reaction.emoji == EMOJIS["dice"]:
                     continue
                 elif reaction.emoji == EMOJIS["eye"]:
-                    await change_view_date(ctx, entry.entry_name)
-                    break
+                    m = await change_view_date(ctx, entry.entry_name)
+                    await m.add_reaction(EMOJIS["dice"])
+                    try:
+                        reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check_emoji)
+                        if m.id == reaction.message.id and reaction.emoji == EMOJIS["dice"]:
+                            continue
+                    except asyncio.TimeoutError:
+                        await m.clear_reactions()
         except asyncio.TimeoutError:
-            pass
+            await m.clear_reactions()
 
         end_loop = True
 
 
-#@bot.command()
-#async def add(ctx, entry: str):
-#    if get_entry_from_user(ctx.message.author.id) != None:
-#        await ctx.send("eh loco vos ya propusiste")
-#        return
-#    if get_entry_from_name(entry.lower()) != None:
-#            await ctx.send("esa serie esta repetida")
-#            return
-#    add_entry(ctx.author.id, entry)
-#    await ctx.send("Se agregó la serie :picardia:")
+@bot.command(name='roll_vc_reaction', aliases=['roll'])
+async def roll_vc_reaction(ctx):
+    entries = []
+
+    try:
+        vc = discord.utils.get(ctx.guild.voice_channels, id=ctx.author.voice.channel.id)
+        vc_users = vc.members
+        for u in vc_users:
+            entries.append(get_entry_from_user(u.id))
+    except AttributeError:
+        return await ctx.send("Debes ingresar a un canal de voz para poder ejecutar este comando")
+
+    await roll_reaction(ctx, entries)
 
 
 @bot.command(aliases=['aefu', 'add'])
@@ -162,11 +146,10 @@ async def add_entry_for_user_error(ctx, error):
 async def change_view_date(ctx, entry:str, new_date:str=Null):
     set_date_to_entry(entry, new_date)
     entry = get_entry_from_name(entry)
-    await ctx.send("Serie **{}** marcada como vista el {}".format(
+    return await ctx.send("Serie **{}** marcada como vista el {}".format(
         entry.entry_name,
         entry.view_date.strftime("%d-%m-%Y")
     ))
-    return
 
 
 @bot.command(aliases=['ldb'])
