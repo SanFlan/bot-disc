@@ -73,7 +73,7 @@ async def roll_reaction(ctx, entries=Null):
      
         m = await ctx.send("**{}** propuesta por **{}**. Prepará el pochoclo que salio tu serie!".format(
             entry.entry_name,
-            member.mention
+            member.display_name
         ))
         for e in ["eye", "dice"]:
             await m.add_reaction(EMOJIS[e])
@@ -232,7 +232,7 @@ async def list_commands(ctx):
         )
     dict_list = {
         'roll': """
-            Rollea entre las series propuestas. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
+            Rollea una serie entre los usuarios del Canal de Voz al que estas unido. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
             con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
         """.format(EMOJIS["dice"], EMOJIS["eye"]),
