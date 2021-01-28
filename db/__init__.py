@@ -2,11 +2,15 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.elements import Null
+from sqlalchemy.sql.functions import user
 from sqlalchemy.sql.sqltypes import DateTime
 from datetime import datetime
 # NOTE: Eliminar al llevar a productivo <--
 from sqlalchemy.event import listen
 from sqlalchemy import event, DDL
+import csv
+import discord
+from discord import client
 # -->
 
 DATABASE_URI = 'sqlite:///:memory:'
@@ -33,11 +37,30 @@ class Entry(Base):
 @event.listens_for(Entry.__table__, 'after_create')
 def insert_initial_values(*args, **kwargs):
     session = Session()
-    #session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico'))
-    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', view_date=datetime.now(), tickets = 5))
+    session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico', tickets = 5))
+    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', tickets = 5))
     session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now(), tickets = 5))
     session.commit()
-    session.close()
+    #session.close()
+
+    try:
+        with open("import.csv", 'r') as csvfile:
+            csv_records = csv.reader(csvfile, delimiter=',')
+
+            for row in csv_records:
+                u = client.get_user_info(row[1])
+                record = Entry(**{
+                    'user_id': u.id,
+                    'entry_name': row[2],
+                    'tickets': row[3]
+                })
+                session.add(record) #Add all the records
+
+            session.commit() #Attempt to commit all the records
+    except:
+        session.rollback() #Rollback the changes on error
+    finally:
+        session.close() #Close the connection
 # -->
 
 engine = create_engine(DATABASE_URI, echo=True)
@@ -65,6 +88,12 @@ def get_entry_from_user(user_id):
             ).one_or_none()
     session.close()
     return entry
+
+def get_not_viewed_entries():
+    session = Session()
+    entries = session.query(Entry).filter(Entry.view_date == None).all()
+    session.close()
+    return entries
 
 def get_viewed_entries():
     session = Session()
