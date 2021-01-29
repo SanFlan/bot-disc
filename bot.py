@@ -1,12 +1,12 @@
 import asyncio
 import random
+import csv
 import discord
 from datetime import datetime
 from discord import message
 from discord import client
 from discord.ext import commands
 from discord.ext.commands.errors import CommandInvokeError
-
 
 from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.expression import false, true
@@ -301,5 +301,39 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
     change_user_id_to_entry(entry, user.id)
     await ctx.send("Se agregó la serie :picardia:")
 
+@bot.command(aliases=['icsv'])
+#@is_admin()
+async def import_csv(ctx, filename='import.csv', delimiter=';'):
+    try:
+        csv_file = open(filename)
+        csv_records = csv.reader(csv_file, delimiter=delimiter)
+    except FileNotFoundError:
+        return await ctx.send("El archivo {} no existe".format(filename))
+ 
+    for row in csv_records:
+        # Eliminar el @ del usuario y obtener los datos de discord
+        user_name = row[0].lstrip('@')
+        member = ctx.guild.get_member_named(user_name)
+
+        try:
+            add_entry(
+                member.id,
+                row[1],
+                row[2]
+            )
+        except AttributeError as e:
+            if str(e) == "'NoneType' object has no attribute 'id'":
+                m = 'No se pudo agregar la entrada ya que el usuario "{}" no existe.'.format(user_name)
+                await ctx.send(m)
+                continue
+            else:
+                return await ctx.send("Error desconocido. Mensaje: {}".format(e))
+
+        await ctx.send("Agregada entrada **{}** de **{}**".format(
+            row[1],
+            member.display_name
+        ))
+        
+    await ctx.send("**Importación finalizada!**")
 
 bot.run(token)

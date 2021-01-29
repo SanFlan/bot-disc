@@ -8,9 +8,6 @@ from datetime import datetime
 # NOTE: Eliminar al llevar a productivo <--
 from sqlalchemy.event import listen
 from sqlalchemy import event, DDL
-import csv
-import discord
-from discord import client
 # -->
 
 DATABASE_URI = 'sqlite:///:memory:'
@@ -22,7 +19,7 @@ class Entry(Base):
     id = Column(Integer, primary_key = True)
     user_id = Column(Integer)
     entry_name = Column(String(200))
-    tickets = Column(Integer, server_default='1')
+    tickets = Column(Integer)
     view_date = Column(DateTime)
 
     def __repr__(self):
@@ -41,26 +38,7 @@ def insert_initial_values(*args, **kwargs):
     session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', tickets = 5))
     session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now(), tickets = 5))
     session.commit()
-    #session.close()
-
-    try:
-        with open("import.csv", 'r') as csvfile:
-            csv_records = csv.reader(csvfile, delimiter=',')
-
-            for row in csv_records:
-                u = client.get_user_info(row[1])
-                record = Entry(**{
-                    'user_id': u.id,
-                    'entry_name': row[2],
-                    'tickets': row[3]
-                })
-                session.add(record) #Add all the records
-
-            session.commit() #Attempt to commit all the records
-    except:
-        session.rollback() #Rollback the changes on error
-    finally:
-        session.close() #Close the connection
+    session.close()
 # -->
 
 engine = create_engine(DATABASE_URI, echo=True)
@@ -101,9 +79,9 @@ def get_viewed_entries():
     session.close()
     return entries
 
-def add_entry(user_id, entry_name):
+def add_entry(user_id, entry_name, tickets=1):
     session = Session()
-    entry = Entry(user_id=user_id, entry_name=entry_name)
+    entry = Entry(user_id=user_id, entry_name=entry_name, tickets=tickets)
     session.add(entry)
     session.commit()
     session.close()
