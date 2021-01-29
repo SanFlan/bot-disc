@@ -142,6 +142,7 @@ async def add_entry_for_user_error(ctx, error):
         return
     print(error.__class__ ,error)
 
+
 @bot.command(aliases=['chd'])
 async def change_view_date(ctx, entry:str, new_date:str=Null):
     set_date_to_entry(entry, new_date)
@@ -165,10 +166,11 @@ async def list_db(ctx):
         await ctx.send("No hay entradas")
         return
     for entry in entries:
-        formated_list += "**{}** - {} - {} ticket(s)\n".format(
+        formated_list += "**{}** - {} - {} ticket(s) - {}\n".format(
             bot.get_user(entry.user_id),
             entry.entry_name,
-            entry.tickets
+            entry.tickets, 
+            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else 'No visto'
             )
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
@@ -180,9 +182,10 @@ async def list_db_error(ctx, error):
         await ctx.send("No tenes permisos, que hacias queriendo toquetear?")
     print(error.__class__ , error)
 
-@bot.command(aliases=['lwatched', 'lwch'])
+
+@bot.command(aliases=['lwatched', 'lw'])
 #@is_admin()
-async def list_watcheds(ctx):
+async def list_watched(ctx):
     embed=discord.Embed(
         title="Lista de series vistas",
         color=0x85C1E9
@@ -195,11 +198,33 @@ async def list_watcheds(ctx):
     for entry in entries:
         formated_list += "**{}** - {} - {}\n".format(
             entry.entry_name,
-            entry.view_date.strftime("%d %b %Y"),
+            bot.get_user(entry.user_id),
+            entry.view_date.strftime("%d %b %Y")
+            )
+    embed.add_field(name="\u200b", value=formated_list)
+    await ctx.send(embed=embed)
+
+
+@bot.command(aliases=['lnwatched', 'lnw'])
+#@is_admin()
+async def list_not_watched(ctx):
+    embed=discord.Embed(
+        title="Lista de series no vistas",
+        color=0x85C1E9
+        )
+    formated_list = ""
+    entries = get_not_viewed_entries()
+    if len(entries) == 0:
+        await ctx.send("No hay entradas")
+        return
+    for entry in entries:
+        formated_list += "**{}** - {}\n".format(
+            entry.entry_name,
             bot.get_user(entry.user_id)
             )
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
+
 
 @bot.command(aliases=['vchk'])
 async def is_in_voice(ctx, user: discord.User):
@@ -236,6 +261,11 @@ async def list_commands(ctx):
             con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
         """.format(EMOJIS["dice"], EMOJIS["eye"]),
+        'rr': """
+            Rollea una serie entre todas las disponibles. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
+            con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+        """.format(EMOJIS["dice"], EMOJIS["eye"]),
         'chd': """
             *(change view date)* Cambia la fecha de visto de una serie. El valor serie y fecha tienen que encontrarse \
             entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY.
@@ -246,15 +276,16 @@ async def list_commands(ctx):
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
             *Ejemplo: add @Tensz Baccano!*
             """,
-        'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie y sus tickets correspondientes.",
-        'lwch': "*(list watcheds)* Muestra las series ya vistas",
+        'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie, sus tickets correspondientes y la fecha en que salió (o no).",
+        'lw, lwatched': "*(list watched)* Muestra las series ya vistas",
+        'lnw, lnwatched': "*(list not watched)* Muestra las series no vistas",
         'lda': "*(list adoptables)* Imprime la base de datos de las series adoptables, aka con 5 tickets.",
         'adopt': """
             'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.",
-            Ejemplo: adopt @BravelyCold Ishuzoku Reviewers*
+            *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
             """,
         'tick': """
-            suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer.
+            Suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer.
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
             """
     }
