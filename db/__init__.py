@@ -10,7 +10,7 @@ from sqlalchemy.event import listen
 from sqlalchemy import event, DDL
 # -->
 
-DATABASE_URI = 'sqlite:///:memory:'
+DATABASE_URI = 'sqlite:///db/production.db'
 Base = declarative_base()
 
 class Entry(Base):
