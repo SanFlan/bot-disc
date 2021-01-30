@@ -53,27 +53,31 @@ async def list_commands(ctx):
         )
     dict_list = {
         'roll': """
-            Rollea una serie entre los usuarios del Canal de Voz al que estas unido. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
+            Rollea una serie entre los usuarios del Canal de Voz al que estas unido.Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
             con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
         """.format(EMOJIS["dice"], EMOJIS["eye"]),
-        'rr': "*(roll reaction)* Similar al comando roll, pero entre todas las series sin ver",
-        'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie, sus tickets correspondientes y la fecha en que salió (o no).",
-        'lw, lwatched': "*(list watched)* Muestra las series ya vistas",
-        'lnw, lnwatched': "*(list not watched)* Muestra las series no vistas",
-        'lda': "*(list adoptables)* Imprime la base de datos de las series adoptables, aka con 5 tickets.",
-        'add, aefu': """
-            *(add entry for user)* Agrega una serie a la lista.
+        'rr': """
+            Rollea una serie entre todas las disponibles. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
+            con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
-            *Ejemplo: add @Tensz Baccano!*
-            """,
+        """.format(EMOJIS["dice"], EMOJIS["eye"]),
         'chd': """
             *(change view date)* Cambia la fecha de visto de una serie. El valor serie y fecha tienen que encontrarse \
             entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY.
             *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
             """,
+        'add, aefu': """
+            *(add entry for user)* Agrega una serie a la lista.
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+            *Ejemplo: add @Tensz Baccano!*
+            """,
+        'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie, sus tickets correspondientes y la fecha en que salió (o no).",
+        'lw, lwatched': "*(list watched)* Muestra las series ya vistas",
+        'lnw, lnwatched': "*(list not watched)* Muestra las series no vistas",
+        'lda': "*(list adoptables)* Imprime la base de datos de las series adoptables, aka con 5 tickets.",
         'adopt': """
-            Adopta una serie entre las disponibles en *lda*, mantiniendo sus tickets. Es necesario tener un rol con jerarquía correspondiente.
+            'Adopta' una serie entre las disponibles en lda y mantiene sus tickets. Es necesario tener un rol con jerarquía correspondiente.",
             *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
             """,
         'tick': """
