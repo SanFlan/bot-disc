@@ -52,6 +52,8 @@ def is_admin():
 
 
 @bot.command(name='roll_reaction', aliases=['rr'])
+@is_org()
+@is_admin()
 async def roll_reaction(ctx, entries=Null):
     def check_emoji(reaction, user):
         return user == ctx.message.author and (
@@ -99,6 +101,8 @@ async def roll_reaction(ctx, entries=Null):
 
 
 @bot.command(name='roll_vc_reaction', aliases=['roll'])
+@is_org()
+@is_admin()
 async def roll_vc_reaction(ctx):
     entries = []
 
@@ -114,6 +118,8 @@ async def roll_vc_reaction(ctx):
 
 
 @bot.command(aliases=['aefu', 'add'])
+@is_org()
+@is_admin()
 async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
     if get_entry_from_user(user.id) != None:
         await ctx.send("Usuario ya tiene una propuesta")
@@ -144,6 +150,8 @@ async def add_entry_for_user_error(ctx, error):
 
 
 @bot.command(aliases=['chd'])
+@is_org()
+@is_admin()
 async def change_view_date(ctx, entry:str, new_date:str=Null):
     set_date_to_entry(entry, new_date)
     entry = get_entry_from_name(entry)
@@ -238,8 +246,8 @@ async def is_in_voice(ctx, user: discord.User):
 
 
 @bot.command(aliases=['tick'])
-#@commands.has_role('el mas pijudo')
-#asi funciona bien, queria ver como hacer para que mandara un mensaje de error pero no lo descubri
+@is_org()
+@is_admin()
 async def tickets(ctx):
     for role in ctx.author.roles:
         if str(role) == 'el mas pijudo':
@@ -316,7 +324,8 @@ async def list_adopt(ctx):
     await ctx.send(embed=embed)
 
 @bot.command(aliases=['adopt'])
-#@is_admin()
+@is_org()
+@is_admin()
 async def act_adopt(ctx, user: discord.Member, *, entry:str):
     adoptable = get_5_ticks()
     nombres = []
@@ -333,7 +342,8 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
     await ctx.send("Se agregó la serie :picardia:")
 
 @bot.command(aliases=['icsv'])
-#@is_admin()
+@is_org()
+@is_admin()
 async def import_csv(ctx, filename='import.csv', delimiter=';'):
     try:
         csv_file = open(filename)
