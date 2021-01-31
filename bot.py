@@ -79,7 +79,7 @@ async def roll_reaction(ctx, entries=Null):
             await m.add_reaction(EMOJIS[e])
         
         try:
-            reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check_emoji)
+            reaction, user = await bot.wait_for("reaction_add", timeout=1800, check=check_emoji)
             if m.id == reaction.message.id:
                 if reaction.emoji == EMOJIS["dice"]:
                     continue
@@ -87,7 +87,7 @@ async def roll_reaction(ctx, entries=Null):
                     m = await change_view_date(ctx, entry.entry_name)
                     await m.add_reaction(EMOJIS["dice"])
                     try:
-                        reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check_emoji)
+                        reaction, user = await bot.wait_for("reaction_add", timeout=120, check=check_emoji)
                         if m.id == reaction.message.id and reaction.emoji == EMOJIS["dice"]:
                             continue
                     except asyncio.TimeoutError:
