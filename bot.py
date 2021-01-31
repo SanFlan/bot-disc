@@ -24,7 +24,7 @@ token = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix='!!', description='entrys', intents=intents)
+bot = commands.Bot(command_prefix='pp!', description='entrys', intents=intents)
 
 EMOJIS = {
     'eye': '\U0001F441',
