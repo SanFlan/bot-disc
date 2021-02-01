@@ -106,6 +106,7 @@ async def list_db(ctx):
         
     await ctx.send(embed=embed) 
 
+
 @bot.command(aliases=['lda'])
 async def list_adopt(ctx):
     embed=discord.Embed(
@@ -146,6 +147,7 @@ async def list_watched(ctx):
             )
     embed.add_field(name="\u200b", value=formated_list)
     await ctx.send(embed=embed)
+
 
 @bot.command(aliases=['lnwatched', 'lnw'])
 async def list_not_watched(ctx):
@@ -215,6 +217,7 @@ async def roll_reaction(ctx, entries=Null):
 
         end_loop = True
 
+
 @bot.command(name='roll_vc_reaction', aliases=['roll'])
 @is_allowed()
 async def roll_vc_reaction(ctx):
@@ -248,6 +251,7 @@ async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
     add_entry(user.id, entry)
     await ctx.send("Se agregó la serie :picardia:")
 
+
 @bot.command(aliases=['chd'])
 @is_allowed()
 async def change_view_date(ctx, entry:str, new_date:str=Null):
@@ -258,6 +262,7 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
         entry.view_date.strftime("%d-%m-%Y")
     ))
 
+
 @bot.command(aliases=['tick'])
 @is_allowed()
 async def add_tickets(ctx):
@@ -266,6 +271,7 @@ async def add_tickets(ctx):
     await list_db(ctx) 
     return
     await ctx.send("Privilegios insuficientes")
+
 
 @bot.command(aliases=['adopt'])
 @is_allowed()
@@ -283,6 +289,7 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
     change_user_id_to_entry(entry, user.id)
     await ctx.send("Se agregó la serie :picardia:")
 
+
 @bot.command(aliases=['remove'])
 @is_allowed()
 async def delete_entry(ctx, *, entry:str):
@@ -292,6 +299,7 @@ async def delete_entry(ctx, *, entry:str):
     remove_entry(get_entry_from_name(entry))
     await ctx.send('Entrada borrada :picardia:')
     return
+
 
 @bot.command(aliases=['icsv'])
 @is_allowed()
@@ -328,6 +336,7 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
         
     await ctx.send("**Importación finalizada!**")
 
+
 # - Error handling -
 @roll_reaction.error
 @roll_vc_reaction.error
@@ -336,6 +345,7 @@ async def permission_error(ctx, error):
     if error.__class__== commands.errors.CheckFailure:
         await ctx.send("No tenes permisos para ejecutar este comando")
     print(error.__class__ , error)
+
 
 @add_entry_for_user.error
 async def add_entry_for_user_error(ctx, error):

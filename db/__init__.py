@@ -30,6 +30,7 @@ class Entry(Base):
                 'view_date'
                 )
 
+
 # NOTE: Eliminar al llevar a productivo <--
 @event.listens_for(Entry.__table__, 'after_create')
 def insert_initial_values(*args, **kwargs):
@@ -45,11 +46,13 @@ engine = create_engine(DATABASE_URI, echo=True)
 Session = sessionmaker(bind=engine)
 Base.metadata.create_all(engine)
 
+
 def get_all_entries():
     session = Session()
     entries = session.query(Entry).all()
     session.close()
     return entries
+
 
 def get_entry_from_name(new_entry_name:str):
     session = Session()
@@ -59,6 +62,7 @@ def get_entry_from_name(new_entry_name:str):
     session.close()
     return entry
 
+
 def get_entry_from_user(user_id):
     session = Session()
     entry = session.query(Entry).filter(
@@ -67,17 +71,28 @@ def get_entry_from_user(user_id):
     session.close()
     return entry
 
+
+def get_entries_from_user(user_id):
+    session = Session()
+    entries = session.query(Entry).filter(
+            Entry.user_id == user_id
+            ).all()
+    session.close()
+    return entries
+
 def get_not_viewed_entries():
     session = Session()
     entries = session.query(Entry).filter(Entry.view_date == None).all()
     session.close()
     return entries
 
+
 def get_viewed_entries():
     session = Session()
     entries = session.query(Entry).filter(Entry.view_date != None).all()
     session.close()
     return entries
+
 
 def add_entry(user_id, entry_name, tickets=1):
     session = Session()
@@ -86,11 +101,13 @@ def add_entry(user_id, entry_name, tickets=1):
     session.commit()
     session.close()
 
+
 def remove_entry(entry):
     session = Session()
     session.delete(entry)
     session.commit()
     session.close()
+
 
 def set_date_to_entry(entry_name, new_date):
     session = Session()
@@ -103,6 +120,7 @@ def set_date_to_entry(entry_name, new_date):
     session.commit()
     session.close()
 
+
 def change_user_id_to_entry(entry_name, user_id):
     session = Session()
     entry = get_entry_from_name(entry_name)
@@ -111,6 +129,7 @@ def change_user_id_to_entry(entry_name, user_id):
     session.commit()
     session.close()
 
+
 def increment_tickets():
     session = Session()
     for entry in session.query(Entry):
@@ -118,6 +137,7 @@ def increment_tickets():
             entry.tickets += 1
     session.commit()
     session.close()
+
 
 def get_5_ticks():
     session = Session()
