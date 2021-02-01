@@ -1,6 +1,7 @@
 import asyncio
 import random
 import csv
+from tabulate import tabulate
 import discord
 from datetime import datetime
 from discord import message
@@ -172,18 +173,6 @@ async def create_embed(entries, title, color=0xFF5733):
         embed.add_field(name=bot.get_user(entry.user_id).name, value=value_field, inline=True)
     return embed
 
-# <-- Lista sin embed
-async def create_entrie_list(entries):
-    formated_list = ""
-    for entry in entries:
-        formated_list += "> **{}** - {} - {} - {}\n".format(
-            bot.get_user(entry.user_id).name,
-            entry.entry_name,
-            entry.tickets,
-            entry.view_date.strftime("%d/%m/%y") if entry.view_date != None else "\u200b"
-        )
-    return formated_list
-# -->
 
 @bot.command(aliases=['ldb'])
 #@is_admin()
@@ -197,6 +186,30 @@ async def list_db(ctx):
     )
     return await ctx.send(embed=embed)
 
+
+# <-- Lista sin embed
+async def create_entries_list(entries):
+    headers = [ "Autor", "Serie", "Tickets", "Fecha Visto" ]
+    table = []
+    for entry in entries:
+        table.append([
+            bot.get_user(entry.user_id).name,
+            entry.entry_name,
+            entry.tickets,
+            entry.view_date.strftime("%d/%m/%y") if entry.view_date != None else "\u200b"
+        ])
+    return tabulate(table, headers=headers)
+# -->
+
+@bot.command(aliases=['ldb2'])
+#@is_admin()
+async def list_db2(ctx):
+    entries=get_all_entries()
+    if len(entries) == 0:
+        return await ctx.send("No hay entradas")
+    list = "**Lista de series propuestas y sus autores**\n"
+    list += await create_entries_list(entries)
+    return await ctx.send(list)
 
 @list_db.error
 async def list_db_error(ctx, error):
