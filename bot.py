@@ -277,12 +277,21 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
     if get_entry_from_user(user.id) != None:
         await ctx.send("Usuario ya tiene una propuesta, primero borrarla e intentar de nuevo")
         return
-    print(nombres)
     if not(entry.lower() in nombres):
         await ctx.send('Esta serie no es adoptable')
         return
     change_user_id_to_entry(entry, user.id)
     await ctx.send("Se agregó la serie :picardia:")
+
+@bot.command(aliases=['remove'])
+@is_allowed()
+async def delete_entry(ctx, *, entry:str):
+    if get_entry_from_name(entry) == None:
+        await ctx.send("Esa entrada no existe")
+        return
+    remove_entry(get_entry_from_name(entry))
+    await ctx.send('Entrada borrada :picardia:')
+    return
 
 @bot.command(aliases=['icsv'])
 @is_allowed()
