@@ -161,27 +161,41 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
     ))
 
 
+async def create_embed(entries, title, color=0xFF5733):
+    embed=discord.Embed(title=title,color=color)
+    for entry in entries:
+        value_field = "> - Serie: {}\n > - Tickets: {}\n > - Fecha Visto: {}".format(
+            entry.entry_name,
+            entry.tickets,
+            entry.view_date.strftime("%d/%m/%y") if entry.view_date != None else "\u200b"
+        )
+        embed.add_field(name=bot.get_user(entry.user_id).name, value=value_field, inline=True)
+    return embed
+
+# <-- Lista sin embed
+async def create_entrie_list(entries):
+    formated_list = ""
+    for entry in entries:
+        formated_list += "> **{}** - {} - {} - {}\n".format(
+            bot.get_user(entry.user_id).name,
+            entry.entry_name,
+            entry.tickets,
+            entry.view_date.strftime("%d/%m/%y") if entry.view_date != None else "\u200b"
+        )
+    return formated_list
+# -->
+
 @bot.command(aliases=['ldb'])
 #@is_admin()
 async def list_db(ctx):
-    embed=discord.Embed(
-        title="Lista de series propuestas y sus autores",
-        color=0xFF5733
-        )
-    formated_list = ""
-    entries = get_all_entries()
+    entries=get_all_entries()
     if len(entries) == 0:
-        await ctx.send("No hay entradas")
-        return
-    for entry in entries:
-        formated_list += "**{}** - {} - {} ticket(s) - {}\n".format(
-            bot.get_user(entry.user_id),
-            entry.entry_name,
-            entry.tickets, 
-            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else 'No visto'
-            )
-    embed.add_field(name="\u200b", value=formated_list)
-    await ctx.send(embed=embed)
+        return await ctx.send("No hay entradas")
+    embed = await create_embed(
+        entries,
+        title="Lista de series propuestas y sus autores"
+    )
+    return await ctx.send(embed=embed)
 
 
 @list_db.error
