@@ -261,12 +261,10 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
 @bot.command(aliases=['tick'])
 @is_allowed()
 async def add_tickets(ctx):
-    for role in ctx.author.roles:
-        if str(role) == 'el mas pijudo':
-            increment_tickets()
-            await ctx.send("Sumando tickets... beep boop...")
-            await list_db(ctx) 
-            return
+    increment_tickets()
+    await ctx.send("Sumando tickets... beep boop...")
+    await list_db(ctx) 
+    return
     await ctx.send("Privilegios insuficientes")
 
 @bot.command(aliases=['adopt'])
