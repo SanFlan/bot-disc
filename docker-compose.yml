@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-    PenPenBot:
+    penpen_bot:
       build: .
       restart: unless-stopped
       volumes:
