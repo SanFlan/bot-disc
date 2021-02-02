@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+    PenPenBot:
+      build: .
+      restart: unless-stopped
+      volumes:
+          - "./db_file:/app/db_file"
