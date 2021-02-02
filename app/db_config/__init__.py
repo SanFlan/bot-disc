@@ -7,7 +7,7 @@ from sqlalchemy.sql.sqltypes import DateTime
 from datetime import datetime
 
 
-DATABASE_URI = 'sqlite:///db/production.db'
+DATABASE_URI = 'sqlite:///db_file/production.db'
 Base = declarative_base()
 
 class Entry(Base):

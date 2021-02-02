@@ -1,7 +1,6 @@
 import asyncio
 import random
 import csv
-from tabulate import tabulate
 import discord
 from datetime import datetime
 from discord import message
@@ -13,7 +12,7 @@ from sqlalchemy.sql.elements import Null
 from sqlalchemy.sql.expression import false, true
 
 #from db import add_entry, get_all_entries, increment_tickets, remove_entry, get_entry_from_name, get_entry_from_user, get_viewed_entries, set_date_to_entry, get_5_ticks, change_user_id_to_entry
-from db import *
+from db_config import *
 
 import os
 from dotenv import load_dotenv
@@ -162,54 +161,28 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
     ))
 
 
-async def create_embed(entries, title, color=0xFF5733):
-    embed=discord.Embed(title=title,color=color)
-    for entry in entries:
-        value_field = "> - Serie: {}\n > - Tickets: {}\n > - Fecha Visto: {}".format(
-            entry.entry_name,
-            entry.tickets,
-            entry.view_date.strftime("%d/%m/%y") if entry.view_date != None else "\u200b"
-        )
-        embed.add_field(name=bot.get_user(entry.user_id).name, value=value_field, inline=True)
-    return embed
-
-
 @bot.command(aliases=['ldb'])
 #@is_admin()
 async def list_db(ctx):
-    entries=get_all_entries()
+    embed=discord.Embed(
+        title="Lista de series propuestas y sus autores",
+        color=0xFF5733
+        )
+    formated_list = ""
+    entries = get_all_entries()
     if len(entries) == 0:
-        return await ctx.send("No hay entradas")
-    embed = await create_embed(
-        entries,
-        title="Lista de series propuestas y sus autores"
-    )
-    return await ctx.send(embed=embed)
-
-
-# <-- Lista sin embed
-async def create_entries_list(entries):
-    headers = [ "Autor", "Serie", "Tickets", "Fecha Visto" ]
-    table = []
+        await ctx.send("No hay entradas")
+        return
     for entry in entries:
-        table.append([
-            bot.get_user(entry.user_id).name,
+        formated_list += "**{}** - {} - {} ticket(s) - {}\n".format(
+            bot.get_user(entry.user_id),
             entry.entry_name,
-            entry.tickets,
-            entry.view_date.strftime("%d/%m/%y") if entry.view_date != None else "\u200b"
-        ])
-    return tabulate(table, headers=headers)
-# -->
+            entry.tickets, 
+            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else 'No visto'
+            )
+    embed.add_field(name="\u200b", value=formated_list)
+    await ctx.send(embed=embed)
 
-@bot.command(aliases=['ldb2'])
-#@is_admin()
-async def list_db2(ctx):
-    entries=get_all_entries()
-    if len(entries) == 0:
-        return await ctx.send("No hay entradas")
-    list = "**Lista de series propuestas y sus autores**\n"
-    list += await create_entries_list(entries)
-    return await ctx.send(list)
 
 @list_db.error
 async def list_db_error(ctx, error):
