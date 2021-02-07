@@ -1,5 +1,0 @@
-SQLAlchemy
-python-dotenv
-discord.py
-python-dotenv
-configparser

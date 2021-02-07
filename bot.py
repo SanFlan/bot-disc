@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-token = 'Nzk4NjE5MzI1MDM2NjI1OTQw.X_3qNA.pjqshGLM1AutaFBtTadT2sqOe0Q'
+token = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -36,7 +36,7 @@ def is_org():
     async def __check_role(ctx):
         member = ctx.guild.get_member(ctx.author.id)
         for role in member.roles:
-            if role.id == 745289656215797840:
+            if role.id == 744370996148174890:
                 return True
         return False
     return commands.check(__check_role)
@@ -53,6 +53,7 @@ def is_admin():
 
 @bot.command(name='roll_reaction', aliases=['rr'])
 @is_org()
+@is_admin()
 async def roll_reaction(ctx, entries=Null):
     def check_emoji(reaction, user):
         return user == ctx.message.author and (
@@ -101,6 +102,7 @@ async def roll_reaction(ctx, entries=Null):
 
 @bot.command(name='roll_vc_reaction', aliases=['roll'])
 @is_org()
+@is_admin()
 async def roll_vc_reaction(ctx):
     entries = []
 
@@ -117,6 +119,7 @@ async def roll_vc_reaction(ctx):
 
 @bot.command(aliases=['aefu', 'add'])
 @is_org()
+@is_admin()
 async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
     if get_entry_from_user(user.id) != None:
         await ctx.send("Usuario ya tiene una propuesta")
@@ -148,6 +151,7 @@ async def add_entry_for_user_error(ctx, error):
 
 @bot.command(aliases=['chd'])
 @is_org()
+@is_admin()
 async def change_view_date(ctx, entry:str, new_date:str=Null):
     set_date_to_entry(entry, new_date)
     entry = get_entry_from_name(entry)
@@ -243,11 +247,15 @@ async def is_in_voice(ctx, user: discord.User):
 
 @bot.command(aliases=['tick'])
 @is_org()
+@is_admin()
 async def tickets(ctx):
-    increment_tickets()
-    await ctx.send("Sumando tickets... beep boop...")
-    await list_db(ctx) 
-    return
+    for role in ctx.author.roles:
+        if str(role) == 'el mas pijudo':
+            increment_tickets()
+            await ctx.send("Sumando tickets... beep boop...")
+            await list_db(ctx) 
+            return
+    await ctx.send("Privilegios insuficientes")
 
 @bot.command(aliases=['info'])
 async def list_commands(ctx):
@@ -317,6 +325,7 @@ async def list_adopt(ctx):
 
 @bot.command(aliases=['adopt'])
 @is_org()
+@is_admin()
 async def act_adopt(ctx, user: discord.Member, *, entry:str):
     adoptable = get_5_ticks()
     nombres = []
@@ -334,6 +343,7 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
 
 @bot.command(aliases=['icsv'])
 @is_org()
+@is_admin()
 async def import_csv(ctx, filename='import.csv', delimiter=';'):
     try:
         csv_file = open(filename)
