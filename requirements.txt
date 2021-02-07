@@ -1,0 +1,3 @@
+AQLAlchemy
+discord.py
+python-dotenv
