@@ -88,6 +88,10 @@ async def list_commands(ctx):
         embed.add_field(name=k, value=v, inline=False)
     await ctx.send(embed=embed)
 
+@bot.command(aliases=['on?'])
+async def atiendo_virgos(ctx):
+    await ctx.send("Atiendo virgos. No ves que atiendo virgos?")
+
 # - Lists -
 async def order_entries_by_date():
     pass
