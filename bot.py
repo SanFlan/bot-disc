@@ -75,6 +75,10 @@ async def list_commands(ctx):
             entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY.
             *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
             """,
+        'remove': """
+            Borra una entrada por **nombre** de la base de datos.
+            *Ejemplo: remove Boku no Pico"*
+            """,
         'adopt': """
             Adopta una serie entre las disponibles en *lda*, mantiniendo sus tickets. Es necesario tener un rol con jerarquía correspondiente.
             *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
@@ -230,12 +234,13 @@ async def roll_reaction(ctx, entries=Null):
 @is_allowed()
 async def roll_vc_reaction(ctx):
     entries = []
-
     try:
         vc = discord.utils.get(ctx.guild.voice_channels, id=ctx.author.voice.channel.id)
         vc_users = vc.members
         for u in vc_users:
-            entries.append(get_entry_from_user(u.id))
+            for entr in get_entries_from_user(u.id):
+                if entr.view_date == None:
+                    entries.append(entr)
     except AttributeError:
         return await ctx.send("Debes ingresar a un canal de voz para poder ejecutar este comando")
 
@@ -246,9 +251,10 @@ async def roll_vc_reaction(ctx):
 @bot.command(aliases=['aefu', 'add'])
 @is_allowed()
 async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
-    if get_entry_from_user(user.id) != None:
-        await ctx.send("Usuario ya tiene una propuesta")
-        return
+    for entr in get_entries_from_user(user.id):
+        if entr.view_date == None:
+            await ctx.send("Usuario ya tiene una propuesta no vista")  
+            return
     exs_entry = get_entry_from_name(entry.lower())
     if exs_entry != None:
         await ctx.send(
@@ -288,9 +294,10 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
     nombres = []
     for serie in adoptable:
         nombres.append(serie.entry_name.lower())
-    if get_entry_from_user(user.id) != None:
-        await ctx.send("Usuario ya tiene una propuesta, primero borrarla e intentar de nuevo")
-        return
+    for entr in get_entries_from_user(user.id):
+        if entr.view_date == None:
+            await ctx.send("Usuario ya tiene una propuesta activa, primero borrarla e intentar de nuevo")  
+            return
     if not(entry.lower() in nombres):
         await ctx.send('Esta serie no es adoptable')
         return

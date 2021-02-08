@@ -80,6 +80,7 @@ def get_entries_from_user(user_id):
     session.close()
     return entries
 
+
 def get_not_viewed_entries():
     session = Session()
     entries = session.query(Entry).filter(Entry.view_date == None).all()
