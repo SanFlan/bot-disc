@@ -120,6 +120,7 @@ async def table_of_entries(entries):
 async def send_text_as_attachment(ctx, string, filename="Output.txt"):
     with tempfile.NamedTemporaryFile("w") as temp:
         temp.writelines(string)
+        temp.flush()
         await ctx.send(
             "El mensaje supera los 2000 caracteres. Adjuntando como archivo de texto",
             file=discord.File(temp.name, filename=filename)
