@@ -152,6 +152,8 @@ async def list_adopt(ctx):
 @bot.command(aliases=['lwatched', 'lw'])
 async def list_watched(ctx):
     entries = get_viewed_entries()
+    if len(entries) == 0:
+        return await ctx.send("No hay series vistas")
 
     table = await table_of_entries(entries)
     output = "Lista de series vistas\n```{}```".format(table)
@@ -164,6 +166,8 @@ async def list_watched(ctx):
 @bot.command(aliases=['lnwatched', 'lnw'])
 async def list_not_watched(ctx):
     entries = get_not_viewed_entries()
+    if len(entries) == 0:
+        return await ctx.send("No hay series sin ver")
 
     table = await table_of_entries(entries)
     output = "Lista de series sin ver\n```{}```".format(table)
