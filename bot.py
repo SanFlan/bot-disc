@@ -1,13 +1,16 @@
 import os
 import csv
 import random
+import tempfile
 from dotenv import load_dotenv
+from tabulate import tabulate
 #from datetime import datetime
 import asyncio
 import discord
 #from discord import message
 #from discord import client
 from discord.ext import commands
+from sqlalchemy.sql.expression import null
 #from discord.ext.commands.errors import CommandInvokeError
 
 #from sqlalchemy.sql.elements import Null
@@ -16,7 +19,7 @@ from discord.ext import commands
 from db import *
 
 
-# --- Bot Config and Variables---
+# --- Bot Config and Constants---
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 
@@ -37,7 +40,7 @@ def is_allowed():
         org_id = 744370996148174890
         member = ctx.guild.get_member(ctx.author.id)
         for role in member.roles:
-            if role.permissions.administrator == True or role.id == org_id :
+            if role.permissions.administrator == True or role.id == org_id:
                 return True
         return False
 
@@ -86,88 +89,85 @@ async def list_commands(ctx):
     await ctx.send(embed=embed)
 
 # - Lists -
+async def order_entries_by_date():
+    pass
+
+async def table_of_entries(entries):
+    table = []
+    for entry in entries:
+        table.append([
+            bot.get_user(entry.user_id).name,
+            entry.entry_name,
+            entry.tickets,
+            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
+        ])
+    
+    return tabulate(table, headers=[
+        "Autor",
+        "Serie",
+        "Tickets",
+        "Fecha visto"
+    ])
+
+async def send_text_as_attachment(ctx, string, filename="Output.txt"):
+    with tempfile.NamedTemporaryFile("w") as temp:
+        temp.writelines(string)
+        await ctx.send(
+            "El mensaje supera los 2000 caracteres. Adjuntando como archivo de texto",
+            file=discord.File(temp.name, filename=filename)
+        )
+
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
     entries = get_all_entries()
     if len(entries) == 0:
-        return await ctx.send("No hay entradas")
+        return await ctx.send("No hay series propuestas")
 
-    embed=discord.Embed(title="Lista de series vistas", color=0x85C1E9)
-    formated_list = ""
-    for entry in entries:
-        member = ctx.guild.get_member(entry.user_id)
-        formated_list += "**{}** - {} - {} ticket(s) - {}\n".format(
-            member.display_name,
-            entry.entry_name,
-            entry.tickets, 
-            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else "No visto"
-            )
-    embed.add_field(name="\u200b", value=formated_list)
-        
-    await ctx.send(embed=embed) 
+    table = await table_of_entries(entries)
+    output = "Lista completa de series\n```{}```".format(table)
 
+    if len(output) > 2000:
+        await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+    else:
+        await ctx.send(output)
 
 @bot.command(aliases=['lda'])
 async def list_adopt(ctx):
-    embed=discord.Embed(
-        title="Lista de series adoptables",
-        color=0xebae34
-    )
-    formated_list = ""
     entries = get_5_ticks()
     if len(entries) == 0:
-        await ctx.send("No hay series adoptables")
-        return
-    for entry in entries:
-        formated_list += "**{}** - {} - {} ticket(s)\n".format(
-            bot.get_user(entry.user_id),
-            entry.entry_name,
-            entry.tickets
-            )
-    embed.add_field(name="\u200b", value=formated_list)
-    await ctx.send(embed=embed)
+        return await ctx.send("No hay series para adoptar")
+    
+    table = await table_of_entries(entries)
+    output = "Lista de series para adoptar\n```{}```".format(table)
+
+    if len(output) > 2000:
+        await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+    else:
+        await ctx.send(output)
 
 @bot.command(aliases=['lwatched', 'lw'])
 async def list_watched(ctx):
-    embed=discord.Embed(
-        title="Lista de series vistas",
-        color=0x85C1E9
-        )
-    formated_list = ""
     entries = get_viewed_entries()
-    if len(entries) == 0:
-        await ctx.send("No hay entradas")
-        return
-    for entry in entries:
-        member = ctx.guild.get_member(entry.user_id)
-        formated_list += "**{}** - {} - {}\n".format(
-            member.display_name,
-            bot.get_user(entry.user_id),
-            entry.view_date.strftime("%d %b %Y")
-            )
-    embed.add_field(name="\u200b", value=formated_list)
-    await ctx.send(embed=embed)
 
+    table = await table_of_entries(entries)
+    output = "Lista de series vistas\n```{}```".format(table)
+
+    if len(output) > 2000:
+        await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+    else:
+        await ctx.send(output)
 
 @bot.command(aliases=['lnwatched', 'lnw'])
 async def list_not_watched(ctx):
-    embed=discord.Embed(
-        title="Lista de series no vistas",
-        color=0x85C1E9
-        )
-    formated_list = ""
     entries = get_not_viewed_entries()
-    if len(entries) == 0:
-        await ctx.send("No hay entradas")
-        return
-    for entry in entries:
-        member = ctx.guild.get_member(entry.user_id)
-        formated_list += "**{}** - {}\n".format(
-            member.display_name,
-            bot.get_user(entry.user_id)
-            )
-    embed.add_field(name="\u200b", value=formated_list)
-    await ctx.send(embed=embed)
+
+    table = await table_of_entries(entries)
+    output = "Lista de series sin ver\n```{}```".format(table)
+
+    if len(output) > 2000:
+        await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+    else:
+        await ctx.send(output)
 
 
 # - Rolls -
@@ -199,7 +199,7 @@ async def roll_reaction(ctx, entries=Null):
         for e in ["eye", "dice"]:
             await m.add_reaction(EMOJIS[e])
         try:
-            reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check_emoji)
+            reaction, user = await bot.wait_for("reaction_add", timeout=120, check=check_emoji)
             if m.id == reaction.message.id:
                 if reaction.emoji == EMOJIS["dice"]:
                     continue
@@ -207,7 +207,7 @@ async def roll_reaction(ctx, entries=Null):
                     m = await change_view_date(ctx, entry.entry_name)
                     await m.add_reaction(EMOJIS["dice"])
                     try:
-                        reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check_emoji)
+                        reaction, user = await bot.wait_for("reaction_add", timeout=60, check=check_emoji)
                         if m.id == reaction.message.id and reaction.emoji == EMOJIS["dice"]:
                             continue
                     except asyncio.TimeoutError:
