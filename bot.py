@@ -333,7 +333,8 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
             add_entry(
                 member.id,
                 row[1],
-                row[2]
+                row[2],
+                row[3]
             )
         except AttributeError as e:
             if str(e) == "'NoneType' object has no attribute 'id'":
@@ -349,6 +350,21 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
         
     await ctx.send("**Importación finalizada!**")
 
+@bot.command(aliases=['ecsv'])
+@is_allowed()
+async def export_csv(ctx, delimiter=';'):
+    with tempfile.NamedTemporaryFile("w", suffix='.csv') as temp:
+        writer = csv.writer(temp, delimiter=delimiter)
+        for entry in get_all_entries():
+            writer.writerow([
+                entry.user_id,
+                entry.entry_name,
+                entry.tickets,
+                entry.view_date.strftime("%d-%m-%Y") if entry.view_date != None else ' '
+            ])
+        temp.flush()
+        
+        await ctx.send(file=discord.File(temp.name, filename="Lista_series.csv"))
 
 # - Error handling -
 @roll_reaction.error
