@@ -252,19 +252,20 @@ async def roll_vc_reaction(ctx):
 @bot.command(aliases=['aefu', 'add'])
 @is_allowed()
 async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
-    for entr in get_entries_from_user(user.id):
-        if entr.view_date == None:
-            await ctx.send("Usuario ya tiene una propuesta no vista")  
-            return
-    exs_entry = get_entry_from_name(entry.lower())
-    if exs_entry != None:
-        await ctx.send(
-            "Esa serie esta repetida, fue propuesta por @{}".format(
-                bot.get_user(exs_entry.user_id)
-                ))
-        return
+    old_entry = get_entry_from_name(entry)
+    if old_entry != None:
+        return await ctx.send("Serie ya propuesta por **{}**".format(
+            bot.get_user(old_entry.user_id).name
+        ))
+    for e in get_entries_from_user(user.id):
+        if e.view_date == None:
+            return await ctx.send("{} tiene para ver **{}**".format(
+                user.name,
+                e.entry_name
+            ))  
+            
     add_entry(user.id, entry)
-    await ctx.send("Se agregó la serie :picardia:")
+    await ctx.send("Se agregó la serie!")
 
 
 @bot.command(aliases=['chd'])
@@ -282,10 +283,7 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
 @is_allowed()
 async def add_tickets(ctx):
     increment_tickets()
-    await ctx.send("Sumando tickets... beep boop...")
-    await list_db(ctx) 
-    return
-    await ctx.send("Privilegios insuficientes")
+    return await ctx.send("tickets agregados!")
 
 
 @bot.command(aliases=['adopt'])
@@ -303,17 +301,17 @@ async def act_adopt(ctx, user: discord.Member, *, entry:str):
         await ctx.send('Esta serie no es adoptable')
         return
     change_user_id_to_entry(entry, user.id)
-    await ctx.send("Se agregó la serie :picardia:")
+    await ctx.send("Se agregó la serie")
 
 
 @bot.command(aliases=['remove'])
 @is_allowed()
 async def delete_entry(ctx, *, entry:str):
     if get_entry_from_name(entry) == None:
-        await ctx.send("Esa entrada no existe")
+        await ctx.send("Entrada inexistente")
         return
     remove_entry(get_entry_from_name(entry))
-    await ctx.send('Entrada borrada :picardia:')
+    await ctx.send('Entrada borrada ')
     return
 
 
@@ -339,11 +337,10 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
             )
         except AttributeError as e:
             if str(e) == "'NoneType' object has no attribute 'id'":
-                m = 'No se pudo agregar la entrada ya que el usuario "{}" no existe.'.format(user_name)
-                await ctx.send(m)
+                await ctx.send('No se pudo agregar la entrada ya que el usuario "{}" no existe.'.format(user_name))
                 continue
             else:
-                return await ctx.send("Error desconocido. Mensaje: {}".format(e))
+                return await ctx.send("Error desconocido: {}".format(e))
 
         await ctx.send("Agregada entrada **{}** de **{}**".format(
             row[1],
@@ -366,13 +363,13 @@ async def permission_error(ctx, error):
 @add_entry_for_user.error
 async def add_entry_for_user_error(ctx, error):
     if error.__class__ == commands.MissingRequiredArgument:
-        await ctx.send("Faltan argumentos chinchu '{}'".format(error.param))
+        await ctx.send("Faltan argumentos '{}'".format(error.param))
         return
     if error.__class__ == commands.BadArgument:
-        await ctx.send("Pifiaste en algun argumento... {}".format(str(error)))
+        await ctx.send("Error en argumento {}".format(str(error)))
         return
     if error.__class__ == commands.MemberNotFound:
-        await ctx.send("No encontre al user".format(str(error)))
+        await ctx.send("Usuario no encontrado: {}".format(str(error)))
         return
     print(error.__class__ ,error)
 
