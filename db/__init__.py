@@ -35,9 +35,6 @@ class Entry(Base):
 @event.listens_for(Entry.__table__, 'after_create')
 def insert_initial_values(*args, **kwargs):
     session = Session()
-    session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico', tickets = 1))
-    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', tickets = 5))
-    session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now(), tickets = 5))
     session.commit()
     session.close()
 # -->
