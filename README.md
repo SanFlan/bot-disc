@@ -1,6 +1,6 @@
 # BOT PARA ELEGIR SERIES AL AZAR
 
-Funciones:
+## Caracteristicas
 - Agregar una serie, asociarlo a su ID de usuario y darle 1 ticket.
 - Prohibir agregar una series ya propuesta.
 - Prohibir al usuario agregar una serie si ya tiene una.
