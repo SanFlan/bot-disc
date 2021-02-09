@@ -334,7 +334,7 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
                 member.id,
                 row[1],
                 row[2],
-                row[3]
+                datetime.datetime.strptime(row[3], '%d-%m-%Y') if row[3] != None else Null
             )
         except AttributeError as e:
             if str(e) == "'NoneType' object has no attribute 'id'":
@@ -360,7 +360,7 @@ async def export_csv(ctx, delimiter=';'):
                 entry.user_id,
                 entry.entry_name,
                 entry.tickets,
-                entry.view_date.strftime("%d-%m-%Y") if entry.view_date != None else ' '
+                entry.view_date.strftime("%d-%m-%y") if entry.view_date != None else ' '
             ])
         temp.flush()
         
