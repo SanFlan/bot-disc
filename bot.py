@@ -334,7 +334,7 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
                 member.id,
                 row[1],
                 row[2],
-                datetime.datetime.strptime(row[3], '%d-%m-%Y') if row[3] != None else Null
+                datetime.strptime(row[3], '%d-%m-%y').date() if len(row[3]) > 0 else None
             )
         except AttributeError as e:
             if str(e) == "'NoneType' object has no attribute 'id'":

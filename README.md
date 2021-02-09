@@ -31,7 +31,7 @@ Nombre Usuario Discord;Nombre Serie;Tickets;Fecha(DD-MM-YY)
 Ejemplo
 
 ```
-UnPerito;Kidou Senshi Gundam: Tekketsu no Orphans;5;;
-Petupi;Bobobo-bo Bo-bobo;1;08-02-21;
-Josi;Baccano!;3;08-02-21;
+UnPerito;Kidou Senshi Gundam: Tekketsu no Orphans;5;
+Petupi;Bobobo-bo Bo-bobo;1;08-02-21
+Josi;Baccano!;3;08-02-21
 ```
