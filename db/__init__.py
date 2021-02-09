@@ -19,8 +19,8 @@ class Entry(Base):
     id = Column(Integer, primary_key = True)
     user_id = Column(Integer)
     entry_name = Column(String(200))
-    tickets = Column(Integer)
-    view_date = Column(DateTime)
+    tickets = Column(Integer, default=1)
+    view_date = Column(DateTime, default=Null)
 
     def __repr__(self):
         return "user_id:{} entry_name:{} tickets{}".format(
@@ -35,6 +35,9 @@ class Entry(Base):
 @event.listens_for(Entry.__table__, 'after_create')
 def insert_initial_values(*args, **kwargs):
     session = Session()
+    session.add(Entry(user_id='151497085718495232', entry_name='Boku no Pico', tickets = 1))
+    session.add(Entry(user_id='446451823604137985', entry_name='Ishuzoku Reviewers', tickets = 5))
+    session.add(Entry(user_id='206939481058574337', entry_name='Nazo No Kanojo X', view_date=datetime.now(), tickets = 5))
     session.commit()
     session.close()
 # -->
@@ -92,9 +95,9 @@ def get_viewed_entries():
     return entries
 
 
-def add_entry(user_id, entry_name, tickets=1):
+def add_entry(user_id, entry_name, tickets=1, view_date=Null):
     session = Session()
-    entry = Entry(user_id=user_id, entry_name=entry_name, tickets=tickets)
+    entry = Entry(user_id=user_id, entry_name=entry_name, tickets=tickets, view_date=view_date)
     session.add(entry)
     session.commit()
     session.close()
