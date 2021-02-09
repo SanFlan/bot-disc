@@ -19,3 +19,19 @@
 - SQLAlchemy
 - python-dotenv
 - tabulate
+
+## Import CSV
+
+El archivo csv tiene que estar en la carpeta raiz del bot y tiene que tener el siguiente formato (el delimitador puede ser otro)
+
+```
+Nombre Usuario Discord;Nombre Serie;Tickets;Fecha(DD-MM-YY)
+```
+
+Ejemplo
+
+```
+UnPerito;Kidou Senshi Gundam: Tekketsu no Orphans;5;;
+Petupi;Bobobo-bo Bo-bobo;1;08-02-21;
+Josi;Baccano!;3;08-02-21;
+```
