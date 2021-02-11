@@ -37,13 +37,12 @@ EMOJIS = {
 #--- Authorization definition ---
 def is_allowed():
     async def __check_role(ctx):
-        org_id = 744370996148174890
+        org_id = 745289656215797840
         member = ctx.guild.get_member(ctx.author.id)
         for role in member.roles:
             if role.permissions.administrator == True or role.id == org_id:
                 return True
         return False
-
     return commands.check(__check_role)
 
 
