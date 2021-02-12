@@ -1,0 +1,5 @@
+SQLAlchemy
+discord.py	
+python-dotenv	
+tabulate
+
