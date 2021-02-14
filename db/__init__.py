@@ -131,11 +131,15 @@ def change_user_id_to_entry(entry_name, user_id):
     session.close()
 
 
-def increment_tickets():
+def increment_tickets(augm):
     session = Session()
-    for entry in session.query(Entry):
-        if entry.tickets < 5:
-            entry.tickets += 1
+    for entry in session.query(Entry).filter(Entry.view_date == None).all():
+        if entry.tickets + augm > 5:
+            entry.tickets = 5
+        if entry.tickets + augm < 1:
+            entry.tickets = 1
+        if (entry.tickets < 5 or entry.tickets + augm < 5) and entry.tickets + augm > 0:
+            entry.tickets += augm
     session.commit()
     session.close()
 

@@ -25,7 +25,7 @@ token = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix='pp!', description='Pen Pen', intents=intents)
+bot = commands.Bot(command_prefix='+', description='Pen Pen', intents=intents)
 
 EMOJIS = {
     'eye': '\U0001F441',
@@ -71,7 +71,7 @@ async def list_commands(ctx):
             """,
         'chd': """
             *(change view date)* Cambia la fecha de visto de una serie. El valor serie y fecha tienen que encontrarse \
-            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY.
+            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY. Si no se pone ninguna fecha toma por default la de hoy.
             *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
             """,
         'remove': """
@@ -83,7 +83,8 @@ async def list_commands(ctx):
             *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
             """,
         'tick': """
-            Suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer.
+            Suma un ticket a todas las series no vistas en la base de datos.\
+            Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
             """
     }
@@ -280,8 +281,8 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
 
 @bot.command(aliases=['tick'])
 @is_allowed()
-async def add_tickets(ctx):
-    increment_tickets()
+async def add_tickets(ctx, tickets = 1):
+    increment_tickets(tickets)
     return await ctx.send("tickets agregados!")
 
 
