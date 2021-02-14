@@ -82,6 +82,11 @@ async def list_commands(ctx):
             Adopta una serie entre las disponibles en *lda*, mantiniendo sus tickets. Es necesario tener un rol con jerarquía correspondiente.
             *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
             """,
+        'chticks': """
+            Cambia la cantidad de tickets de una entrada particular.
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+            *Ejemplo: chticks "Boku no Pico" 4*
+            """,
         'tick': """
             Suma un ticket a todas las series no vistas en la base de datos.\
             Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
@@ -277,6 +282,16 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
         entry.entry_name,
         entry.view_date.strftime("%d-%m-%Y")
     ))
+
+@bot.command(aliases=['chticks'])
+@is_allowed()
+async def change_tickets(ctx, entry:str, tickets:int):
+    print(tickets)
+    if (tickets > 5 or tickets < 1):
+        await ctx.send("Cantidad no aceptada de tickets")
+        return
+    set_ticks_to_entry(entry, tickets)
+    return await ctx.send("tickets agregados!")
 
 
 @bot.command(aliases=['tick'])
