@@ -108,12 +108,20 @@ async def order_entries_by_date():
 async def table_of_entries(entries):
     table = []
     for entry in entries:
-        table.append([
-            bot.get_user(entry.user_id).name,
-            entry.entry_name,
-            entry.tickets,
-            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
-        ])
+        if len(entry.entry_name) > 20 :
+            table.append([
+                bot.get_user(entry.user_id).name,
+                entry.entry_name[0:25] + '...',
+                entry.tickets,
+                entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
+            ]) 
+        else:
+            table.append([
+                bot.get_user(entry.user_id).name,
+                entry.entry_name,
+                entry.tickets,
+                entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
+            ])
     
     return tabulate(table, headers=[
         "Autor",
