@@ -25,7 +25,7 @@ token = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix='pp!', description='Pen Pen', intents=intents)
+bot = commands.Bot(command_prefix='+', description='Pen Pen', intents=intents)
 
 EMOJIS = {
     'eye': '\U0001F441',
@@ -71,7 +71,7 @@ async def list_commands(ctx):
             """,
         'chd': """
             *(change view date)* Cambia la fecha de visto de una serie. El valor serie y fecha tienen que encontrarse \
-            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY.
+            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY. Si no se pone ninguna fecha toma por default la de hoy.
             *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
             """,
         'remove': """
@@ -82,8 +82,14 @@ async def list_commands(ctx):
             Adopta una serie entre las disponibles en *lda*, mantiniendo sus tickets. Es necesario tener un rol con jerarquía correspondiente.
             *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
             """,
+        'chticks': """
+            Cambia la cantidad de tickets de una entrada particular.
+            Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+            *Ejemplo: chticks "Boku no Pico" 4*
+            """,
         'tick': """
-            Suma un ticket a todas las series no vistas en la base de datos. Esta acción no se puede deshacer.
+            Suma un ticket a todas las series no vistas en la base de datos.\
+            Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
             """
     }
@@ -102,12 +108,20 @@ async def order_entries_by_date():
 async def table_of_entries(entries):
     table = []
     for entry in entries:
-        table.append([
-            bot.get_user(entry.user_id).name,
-            entry.entry_name,
-            entry.tickets,
-            entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
-        ])
+        if len(entry.entry_name) > 20 :
+            table.append([
+                bot.get_user(entry.user_id).name,
+                entry.entry_name[0:25] + '...',
+                entry.tickets,
+                entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
+            ]) 
+        else:
+            table.append([
+                bot.get_user(entry.user_id).name,
+                entry.entry_name,
+                entry.tickets,
+                entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
+            ])
     
     return tabulate(table, headers=[
         "Autor",
@@ -277,11 +291,21 @@ async def change_view_date(ctx, entry:str, new_date:str=Null):
         entry.view_date.strftime("%d-%m-%Y")
     ))
 
+@bot.command(aliases=['chticks'])
+@is_allowed()
+async def change_tickets(ctx, entry:str, tickets:int):
+    print(tickets)
+    if (tickets > 5 or tickets < 1):
+        await ctx.send("Cantidad no aceptada de tickets")
+        return
+    set_ticks_to_entry(entry, tickets)
+    return await ctx.send("tickets agregados!")
+
 
 @bot.command(aliases=['tick'])
 @is_allowed()
-async def add_tickets(ctx):
-    increment_tickets()
+async def add_tickets(ctx, tickets = 1):
+    increment_tickets(tickets)
     return await ctx.send("tickets agregados!")
 
 
