@@ -58,12 +58,12 @@ async def list_commands(ctx):
         color=0x3385ff
         )
     dict_list = {
-        'roll': """
-            Rollea una serie entre los usuarios del Canal de Voz al que estas unido. Reaccionando con {} se lanza un nuevo roll, mientras que reaccionando \
-            con {} marca la serie como vista (limite de 60 segundos para ambas aciones).
+        'roll, rvc': """
+            Rollea una serie entre los usuarios del Canal de Voz al que estas unido. Reaccionando al {} lanza un nuevo roll, reaccionando \
+            al {} marca la serie como vista (limite de 60 segundos para ambas aciones).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
         """.format(EMOJIS["dice"], EMOJIS["eye"]),
-        'rr': "*(roll reaction)* Similar al comando roll, pero entre todas las series sin ver",
+        'rall': "*(roll all)* Similar al comando roll, pero entre todas las series sin ver",
         'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie, sus tickets correspondientes y la fecha en que salió (o no).",
         'lw, lwatched': "*(list watched)* Muestra las series ya vistas",
         'lnw, lnwatched': "*(list not watched)* Muestra las series no vistas",
@@ -71,15 +71,15 @@ async def list_commands(ctx):
         'add, aefu': """
             *(add entry for user)* Agrega una serie a la lista.
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
-            *Ejemplo: add @Tensz Baccano!*
+            *Ejemplo: add Tensz Baccano!*
             """,
         'chd': """
-            *(change view date)* Cambia la fecha de visto de una serie. El valor serie y fecha tienen que encontrarse \
-            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY. Si no se pone ninguna fecha toma por default la de hoy.
+            *(change view date)* Cambia la fecha en que se vio una serie. El valor serie y fecha tienen que encontrarse \
+            entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY. Si no se indica fecha utiliza la actual.
             *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
             """,
         'remove': """
-            Borra una entrada por **nombre** de la base de datos.
+            Borra una entrada por **nombre** de la base de datos. **CUIDADO:** Acepta resultados parciales por lo que puede borrar entradas indeseadas
             *Ejemplo: remove Boku no Pico"*
             """,
         'adopt': """
@@ -92,8 +92,7 @@ async def list_commands(ctx):
             *Ejemplo: chticks "Boku no Pico" 4*
             """,
         'tick': """
-            Suma un ticket a todas las series no vistas en la base de datos.\
-            Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
+            Suma un ticket a todas las series no vistas en la base de datos. Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
             Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
             """
     }
@@ -103,7 +102,11 @@ async def list_commands(ctx):
 
 @bot.command(aliases=['on?'])
 async def atiendo_virgos(ctx):
-    await ctx.send("Atiendo virgos. No ves que atiendo virgos?")
+    picardia  = bot.get_emoji(784272637010509864)
+    if picardia:
+        await ctx.send("Atiendo virgos. No ves que atiendo virgos? {}".format(picardia))
+    else:
+        await ctx.send("Atiendo virgos. No ves que atiendo virgos?")
 
 # - Lists -
 async def table_of_entries(entries):
@@ -192,15 +195,15 @@ async def list_not_watched(ctx):
 
 
 # - Rolls -
-@bot.command(name='roll_reaction', aliases=['rr'])
+@bot.command(name='roll_reaction', aliases=['rall'])
 @is_allowed()
-async def roll_reaction(ctx, entries=Null):
+async def roll_reaction(ctx, entries=None):
     def check_emoji(reaction, user):
         return user == ctx.message.author and (
             str(reaction.emoji) == EMOJIS['eye'] or str(reaction.emoji) == EMOJIS['dice']
         )
     
-    if entries == Null:
+    if entries == None:
         entries = get_not_viewed_entries()
 
     end_loop = False
@@ -278,7 +281,7 @@ async def add_entry_for_user(ctx, user: discord.Member, *, entry:str):
 
 @bot.command(aliases=['chd'])
 @is_allowed()
-async def change_view_date(ctx, entry:str, new_date:str=Null):
+async def change_view_date(ctx, entry:str, new_date:str=None):
     set_date_to_entry(entry, new_date)
     entry = get_entry_from_name(entry)
     return await ctx.send("Serie **{}** marcada como vista el {}".format(
@@ -337,17 +340,16 @@ async def delete_entry(ctx, *, entry:str):
 @is_allowed()
 async def import_csv(ctx, filename='import.csv', delimiter=';'):
     def get_discord_user(user):
-        # Remove @ from username (if any) and get member info
-        user = user.lstrip('@')
-        m = ctx.guild.get_member_named(user)
-        if m != None:
-            return m
-        elif user.isdigit():
-            return ctx.guild.get_member(int(user))
+        # Remove @ from username (if any) and return member info
+        u = user.lstrip('@')
+        if u.isdigit():
+            return ctx.guild.get_member(int(u))
+        elif ctx.guild.get_member_named(u):
+            return ctx.guild.get_member_named(u)
         else:
             return None
     def string_to_date(date_text):
-        # Check if date is correct or ignore completely
+        # Check if date is formated properly and return a datetime object, or return None
         try:
             return datetime.strptime(date_text, '%d-%m-%y').date()
         except ValueError:
