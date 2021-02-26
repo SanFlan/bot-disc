@@ -29,7 +29,7 @@ else:
 
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix='+', description='Pen Pen', intents=intents)
+bot = commands.Bot(command_prefix='pp', description='Pen Pen', intents=intents)
 
 EMOJIS = {
     'eye': '\U0001F441',
