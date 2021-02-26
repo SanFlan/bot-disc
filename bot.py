@@ -1,8 +1,8 @@
 import os
 import csv
 import random
-import tempfile
-from dotenv import load_dotenv
+import io
+from os import path
 from tabulate import tabulate
 #from datetime import datetime
 import asyncio
@@ -10,7 +10,7 @@ import discord
 #from discord import message
 #from discord import client
 from discord.ext import commands
-from sqlalchemy.sql.expression import null
+#from sqlalchemy.sql.expression import null
 #from discord.ext.commands.errors import CommandInvokeError
 
 #from sqlalchemy.sql.elements import Null
@@ -20,8 +20,12 @@ from db import *
 
 
 # --- Bot Config and Constants---
-load_dotenv()
-token = os.getenv('DISCORD_TOKEN')
+if path.exists(".env"):
+    from dotenv import load_dotenv
+    load_dotenv()
+    token = os.getenv('DISCORD_TOKEN')
+else:
+    token = os.environ.get('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -102,9 +106,6 @@ async def atiendo_virgos(ctx):
     await ctx.send("Atiendo virgos. No ves que atiendo virgos?")
 
 # - Lists -
-async def order_entries_by_date():
-    pass
-
 async def table_of_entries(entries):
     table = []
     for entry in entries:
@@ -123,21 +124,15 @@ async def table_of_entries(entries):
                 entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
             ])
     
-    return tabulate(table, headers=[
-        "Autor",
-        "Serie",
-        "Tickets",
-        "Fecha visto"
-    ])
+    return tabulate(table, headers=["Autor", "Serie", "Tickets", "Fecha visto"])
 
-async def send_text_as_attachment(ctx, string, filename="Output.txt"):
-    with tempfile.NamedTemporaryFile("w") as temp:
-        temp.writelines(string)
-        temp.flush()
-        await ctx.send(
-            "El mensaje supera los 2000 caracteres. Adjuntando como archivo de texto",
-            file=discord.File(temp.name, filename=filename)
+async def send_text_as_attachment(ctx, text, filename="Output.txt"):
+    f = io.StringIO(text)
+    await ctx.send(
+        "El mensaje supera los 2000 caracteres. Adjuntando como archivo de texto",
+            file=discord.File(f, filename=filename)
         )
+    f.close()
 
 @bot.command(aliases=['ldb'])
 async def list_db(ctx):
@@ -148,7 +143,7 @@ async def list_db(ctx):
     table = await table_of_entries(entries)
     output = "Lista completa de series\n```{}```".format(table)
 
-    if len(output) > 2000:
+    if len(output) >= 2000:
         await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
     else:
         await ctx.send(output)
@@ -162,7 +157,7 @@ async def list_adopt(ctx):
     table = await table_of_entries(entries)
     output = "Lista de series para adoptar\n```{}```".format(table)
 
-    if len(output) > 2000:
+    if len(output) >= 2000:
         await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
     else:
         await ctx.send(output)
@@ -176,7 +171,7 @@ async def list_watched(ctx):
     table = await table_of_entries(entries)
     output = "Lista de series vistas\n```{}```".format(table)
 
-    if len(output) > 2000:
+    if len(output) >= 2000:
         await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
     else:
         await ctx.send(output)
@@ -190,7 +185,7 @@ async def list_not_watched(ctx):
     table = await table_of_entries(entries)
     output = "Lista de series sin ver\n```{}```".format(table)
 
-    if len(output) > 2000:
+    if len(output) >= 2000:
         await send_text_as_attachment(ctx, table, filename="Lista de series.txt")
     else:
         await ctx.send(output)
@@ -341,6 +336,23 @@ async def delete_entry(ctx, *, entry:str):
 @bot.command(aliases=['icsv'])
 @is_allowed()
 async def import_csv(ctx, filename='import.csv', delimiter=';'):
+    def get_discord_user(user):
+        # Remove @ from username (if any) and get member info
+        user = user.lstrip('@')
+        m = ctx.guild.get_member_named(user)
+        if m != None:
+            return m
+        elif user.isdigit():
+            return ctx.guild.get_member(int(user))
+        else:
+            return None
+    def string_to_date(date_text):
+        # Check if date is correct or ignore completely
+        try:
+            return datetime.strptime(date_text, '%d-%m-%y').date()
+        except ValueError:
+            return None
+
     try:
         csv_file = open(filename)
         csv_records = csv.reader(csv_file, delimiter=delimiter)
@@ -348,46 +360,47 @@ async def import_csv(ctx, filename='import.csv', delimiter=';'):
         return await ctx.send("El archivo {} no existe".format(filename))
  
     for row in csv_records:
-        # Remove @ from username (if any) and get member info
-        user_name = row[0].lstrip('@')
-        member = ctx.guild.get_member_named(user_name)
-
+        member = get_discord_user(row[0])
+        entry_name = row[1]
+        tickets = row[2]
+        entry_date = string_to_date(row[3])
+    
         try:
             add_entry(
                 member.id,
-                row[1],
-                row[2],
-                datetime.strptime(row[3], '%d-%m-%y').date() if len(row[3]) > 0 else None
+                entry_name,
+                tickets,
+                entry_date
             )
         except AttributeError as e:
             if str(e) == "'NoneType' object has no attribute 'id'":
-                await ctx.send('No se pudo agregar la entrada ya que el usuario "{}" no existe.'.format(user_name))
+                await ctx.send('No se pudo agregar la entrada ya que el usuario "{}" no existe.'.format(row[0]))
                 continue
             else:
-                return await ctx.send("Error desconocido: {}".format(e))
+                return await ctx.send("Error desconocido al agregar la entrada: {}".format(e))
 
         await ctx.send("Agregada entrada **{}** de **{}**".format(
-            row[1],
+            entry_name,
             member.display_name
         ))
-        
+
     await ctx.send("**Importación finalizada!**")
 
 @bot.command(aliases=['ecsv'])
 @is_allowed()
 async def export_csv(ctx, delimiter=';'):
-    with tempfile.NamedTemporaryFile("w", suffix='.csv') as temp:
-        writer = csv.writer(temp, delimiter=delimiter)
-        for entry in get_all_entries():
-            writer.writerow([
-                entry.user_id,
-                entry.entry_name,
-                entry.tickets,
-                entry.view_date.strftime("%d-%m-%y") if entry.view_date != None else ' '
-            ])
-        temp.flush()
-        
-        await ctx.send(file=discord.File(temp.name, filename="Lista_series.csv"))
+    f = io.StringIO()
+    writer = csv.writer(f, delimiter=delimiter)
+    for entry in get_all_entries():
+        writer.writerow([
+            entry.user_id,
+            entry.entry_name,
+            entry.tickets,
+            entry.view_date.strftime("%d-%m-%y") if entry.view_date != None else ' '
+        ])
+    f.seek(0)
+    await ctx.send(file=discord.File(f, filename="Lista_series.csv"))
+    f.close()
 
 # - Error handling -
 @roll_reaction.error
