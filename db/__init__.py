@@ -110,10 +110,10 @@ def remove_entry(entry):
     session.close()
 
 
-def set_date_to_entry(entry_name, new_date):
+def set_date_to_entry(entry_name, new_date=None):
     session = Session()
     entry = get_entry_from_name(entry_name)
-    if new_date == Null:
+    if new_date == None:
         entry.view_date = datetime.now()
     else:
         entry.view_date = datetime.strptime(new_date, "%d-%m-%Y").date()
