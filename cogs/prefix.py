@@ -8,14 +8,6 @@ prefixes_file = 'prefixes.json'
 class Prefix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    async def cog_check(self, ctx):
-        org_id = 745289656215797840
-        member = ctx.guild.get_member(ctx.author.id)
-        for role in member.roles:
-            if role.permissions.administrator == True or role.id == org_id:
-                return True
-        return False
 
     @commands.Cog.listener()
     async def on_connect(self):
@@ -42,6 +34,7 @@ class Prefix(commands.Cog):
             f.truncate()
 
     @commands.command(pass_context=True)
+    @commands.has_role(['Admin'])
     async def changeprefix(self, ctx, prefix):
         with open(prefixes_file, 'r+') as f:
             prefixes = json.load(f)

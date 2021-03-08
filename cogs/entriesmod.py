@@ -7,12 +7,8 @@ class EntriesMod(commands.Cog):
         self.bot = bot
     
     async def cog_check(self, ctx):
-        org_id = 745289656215797840
-        member = ctx.guild.get_member(ctx.author.id)
-        for role in member.roles:
-            if role.permissions.administrator == True or role.id == org_id:
-                return True
-        return False
+        perm = self.bot.get_cog('Permissions')
+        return await perm.check_permissions(ctx)
 
     async def cog_command_error(self, ctx, error):
         # Prevents any commands with local handlers being handled here in on_command_error.
