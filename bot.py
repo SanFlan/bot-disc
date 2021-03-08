@@ -23,7 +23,7 @@ async def get_prefix(bot, message):
 
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix=(get_prefix), description='Pen Pen', intents=intents)
+bot = commands.Bot(command_prefix=get_prefix, description='Pen Pen', intents=intents)
 
 # -- Main --
 @bot.event
