@@ -60,11 +60,8 @@ class Rolls(commands.Cog):
                     if reaction.emoji == EMOJIS["dice"]:
                         continue
                     elif reaction.emoji == EMOJIS["eye"]:
-                        m = await self.change_view_date(ctx, entry.entry_name)
-                        #await m.add_reaction(EMOJIS["dice"])
-                        #reaction, user = await self.wait_for("reaction_add", timeout=60, check=check_emoji)
-                        #if m.id == reaction.message.id and reaction.emoji == EMOJIS["dice"]:
-                        #    continue
+                        entriesmod = self.bot.get_cog('EntriesMod')
+                        await entriesmod.change_view_date(ctx, entry.entry_name)
             except asyncio.TimeoutError:
                 await m.clear_reactions()
 
