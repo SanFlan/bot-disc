@@ -1,6 +1,8 @@
 import discord
 import csv
 import io
+import asyncio
+from discord import message
 from discord.ext import commands
 from db import *
 
@@ -25,7 +27,7 @@ class CSV(commands.Cog):
             return await ctx.send('No tenes permisos suficientes para ejecutar este comando')
 
     @commands.command(aliases=['icsv'])
-    async def import_csv(self, ctx, filename='import.csv', delimiter=';'):
+    async def import_csv(self, ctx, delimiter=';'):
         async def get_discord_user(user):
             # Remove @ from username (if any) and return member info
             u = user.lstrip('@')
@@ -41,14 +43,25 @@ class CSV(commands.Cog):
                 return datetime.strptime(date_text, '%d-%m-%y').date()
             except ValueError:
                 return None
-
+        def check(message):
+            return message.author == ctx.author and bool(message.attachments)
+        
+        # Get attachment, decode it and split it
         try:
-            csv_file = open(filename)
-            csv_records = csv.reader(csv_file, delimiter=delimiter)
-        except FileNotFoundError:
-            return await ctx.send("El archivo {} no existe".format(filename))
-    
-        for row in csv_records:
+            if bool(ctx.message.attachments):
+                file = await ctx.message.attachments[0].read()
+            else:
+                await ctx.send("Responder a este mensaje con el archivo .csv adjunto")
+                resp = await self.bot.wait_for('message', timeout=60, check=check)
+                file = await resp.attachments[0].read()
+
+            file_decoded = file.decode().splitlines()
+        except asyncio.TimeoutError:
+            return await ctx.send("Archivo no adjuntando. Deteniendo importación")
+        except:
+            return await ctx.send("Archivo .csv erroneo")
+        # Import entries
+        for row in csv.reader(file_decoded, delimiter=';'):
             member = await get_discord_user(row[0])
             entry_name = row[1]
             tickets = row[2]
