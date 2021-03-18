@@ -2,7 +2,6 @@ import discord
 import csv
 import io
 import asyncio
-from discord import message
 from discord.ext import commands
 from db import *
 
