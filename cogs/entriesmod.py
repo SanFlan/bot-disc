@@ -89,6 +89,15 @@ class EntriesMod(commands.Cog):
         remove_entry(get_entry_from_name(entry))
         return await ctx.send('Entrada borrada ')
 
+    @commands.command(aliases=['propuesta'])
+    async def propuesta_de(self, ctx, user: discord.Member):
+        for e in get_entries_from_user(user.id):
+            if e.view_date == None:
+                return await ctx.send("{} tiene para ver **{}**".format(
+                    user.name,
+                    e.entry_name
+                ))
+
 
 def setup(bot):
     bot.add_cog(EntriesMod(bot))

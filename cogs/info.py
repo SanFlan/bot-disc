@@ -39,7 +39,7 @@ class Info(commands.Cog):
                 """,
             'remove': """
                 Borra una entrada por **nombre** de la base de datos. **CUIDADO:** Acepta resultados parciales por lo que puede borrar entradas indeseadas
-                *Ejemplo: remove Boku no Pico"*
+                *Ejemplo: remove Boku no Pico*
                 """,
             'adopt': """
                 Adopta una serie entre las disponibles en *lda*, mantiniendo sus tickets. Es necesario tener un rol con jerarquía correspondiente.
@@ -53,12 +53,16 @@ class Info(commands.Cog):
             'tick': """
                 Suma un ticket a todas las series no vistas en la base de datos. Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
                 Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+                """,
+            'propuesta': """
+                Muestra la propuesta de cierto usuario.
+                *Ejemplo: propuesta @jugoprex*
                 """
         }
         for k, v in dict_list.items():
             embed.add_field(name=k, value=v, inline=False)
         await ctx.send(embed=embed)
-
+ 
     @commands.command(aliases=['on?'])
     async def atiendo_virgos(self, ctx):
         picardia  = self.bot.get_emoji(784272637010509864)
