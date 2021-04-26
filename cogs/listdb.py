@@ -28,23 +28,23 @@ class ListDB(commands.Cog):
                 ])
         return tabulate(table, headers=["Autor", "Serie", "Tickets", "Fecha visto"])
 
-    async def send_text_as_attachment(ctx, text, filename="Output.txt"):
+    async def send_text_as_attachment(self, ctx, text, filename):
         f = io.StringIO(text)
         await ctx.send(
-            "El mensaje supera los 2000 caracteres. Adjuntando como archivo de texto",
-                file=discord.File(f, filename=filename)
+                file=discord.File(f, filename)
             )
         f.close()
+        return
 
     @commands.command(aliases=['ldb'])
     async def list_db(self, ctx):
         entries = get_all_entries()
         if len(entries) == 0:
             return await ctx.send("No hay series propuestas")
-
+    
         table = await self.table_of_entries(entries)
-        output = "Lista completa de series\n```{}```".format(table)
-
+        output = "**Lista completa de series**\n```{}```".format(table)
+    
         if len(output) >= 2000:
             await self.send_text_as_attachment(ctx, table, filename="Lista de series.txt")
         else:
@@ -57,10 +57,10 @@ class ListDB(commands.Cog):
             return await ctx.send("No hay series para adoptar")
 
         table = await self.table_of_entries(entries)
-        output = "Lista de series para adoptar\n```{}```".format(table)
+        output = "**Lista de series para adoptar**\n```{}```".format(table)
 
         if len(output) >= 2000:
-            await self.send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+            await self.send_text_as_attachment(ctx, table, 'lista_adoptables.txt')
         else:
             await ctx.send(output)
 
@@ -71,10 +71,10 @@ class ListDB(commands.Cog):
             return await ctx.send("No hay series vistas")
 
         table = await self.table_of_entries(entries)
-        output = "Lista de series vistas\n```{}```".format(table)
+        output = "**Lista de series vistas**\n```{}```".format(table)
 
         if len(output) >= 2000:
-            await self.send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+            await self.send_text_as_attachment(ctx, table, "lista_de_series_vistas.txt")
         else:
             await ctx.send(output)
 
@@ -85,10 +85,10 @@ class ListDB(commands.Cog):
             return await ctx.send("No hay series sin ver")
 
         table = await self.table_of_entries(entries)
-        output = "Lista de series sin ver\n```{}```".format(table)
+        output = "**Lista de series sin ver**\n```{}```".format(table)
 
         if len(output) >= 2000:
-            await self.send_text_as_attachment(ctx, table, filename="Lista de series.txt")
+            await self.send_text_as_attachment(ctx, table, "lista_de_series_no_vistas.txt")
         else:
             await ctx.send(output)
 
