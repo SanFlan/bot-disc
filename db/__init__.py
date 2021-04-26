@@ -158,3 +158,10 @@ def get_5_ticks():
     entries = session.query(Entry).filter_by(tickets=5).all()
     session.close()
     return entries
+
+def sum_tickets(entries):
+    session = Session()
+    sum = 0
+    for entry in entries:
+        sum += entry.tickets
+    return sum

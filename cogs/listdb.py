@@ -3,6 +3,7 @@ import io
 from discord.ext import commands
 from discord.ext.commands.core import command
 from tabulate import tabulate
+import inspect
 from db import *
 
 class ListDB(commands.Cog):
@@ -27,6 +28,26 @@ class ListDB(commands.Cog):
                     entry.view_date.strftime("%d %b %Y") if entry.view_date != None else ' '
                 ])
         return tabulate(table, headers=["Autor", "Serie", "Tickets", "Fecha visto"])
+
+    async def table_of_entries_wo_date(self, entries):
+        table = []
+        total = sum_tickets(entries)
+        for entry in entries:
+            if len(entry.entry_name) > 20 :
+                table.append([
+                    self.bot.get_user(entry.user_id).name,
+                    entry.entry_name[0:25] + '...',
+                    entry.tickets,
+                    entry.tickets/total
+                ]) 
+            else:
+                table.append([
+                    self.bot.get_user(entry.user_id).name,
+                    entry.entry_name,
+                    entry.tickets,
+                    entry.tickets/total
+                ])
+        return tabulate(table, headers=["Autor", "Serie", "Tickets", "Probabilidad de salir"])
 
     async def send_text_as_attachment(self, ctx, text, filename):
         f = io.StringIO(text)
@@ -89,6 +110,36 @@ class ListDB(commands.Cog):
 
         if len(output) >= 2000:
             await self.send_text_as_attachment(ctx, table, "lista_de_series_no_vistas.txt")
+        else:
+            await ctx.send(output)
+
+    @commands.command(aliases=['propuesta'])
+    async def propuesta_de(self, ctx, user: discord.Member):
+        for e in get_entries_from_user(user.id):
+            if e.view_date == None:
+                return await ctx.send("{} tiene para ver **{}**".format(
+                    user.name,
+                    e.entry_name
+                ))
+
+    @commands.command(aliases=['presentes'])
+    async def list_present(self, ctx):
+        entries = []
+        try:
+            vc = discord.utils.get(ctx.guild.voice_channels, id=ctx.author.voice.channel.id)
+            vc_users = vc.members
+            for u in vc_users:
+                for entr in get_entries_from_user(u.id):
+                    if entr.view_date == None:
+                        entries.append(entr)
+        except AttributeError:
+            return await ctx.send("Debes ingresar a un canal de voz para poder ejecutar este comando")
+
+        table = await self.table_of_entries_wo_date(entries)
+        output = "**Lista de series**\n```{}```".format(table)
+
+        if len(output) >= 2000:
+            await self.send_text_as_attachment(ctx, table, "lista_de_series_de_presentes.txt")
         else:
             await ctx.send(output)
 
