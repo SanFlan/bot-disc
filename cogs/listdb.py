@@ -57,7 +57,7 @@ class ListDB(commands.Cog):
         f.close()
         return
 
-    @commands.command(aliases=['ldb'])
+    @commands.command(aliases=['ldb','listdatabase','database'])
     async def list_db(self, ctx):
         entries = get_all_entries()
         if len(entries) == 0:
@@ -71,7 +71,7 @@ class ListDB(commands.Cog):
         else:
             await ctx.send(output)
 
-    @commands.command(aliases=['lda'])
+    @commands.command(aliases=['lda','listadopt','adoptables'])
     async def list_adopt(self, ctx):
         entries = get_5_ticks()
         if len(entries) == 0:
@@ -85,7 +85,7 @@ class ListDB(commands.Cog):
         else:
             await ctx.send(output)
 
-    @commands.command(aliases=['lwatched', 'lw'])
+    @commands.command(aliases=['lwatched', 'lw', 'listwatched', 'watched'])
     async def list_watched(self, ctx):
         entries = get_viewed_entries()
         if len(entries) == 0:
@@ -99,7 +99,7 @@ class ListDB(commands.Cog):
         else:
             await ctx.send(output)
 
-    @commands.command(aliases=['lnwatched', 'lnw'])
+    @commands.command(aliases=['lnwatched', 'lnw', 'listnotwatched', 'notwatched'])
     async def list_not_watched(self, ctx):
         entries = get_not_viewed_entries()
         if len(entries) == 0:

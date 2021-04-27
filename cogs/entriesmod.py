@@ -45,7 +45,7 @@ class EntriesMod(commands.Cog):
         add_entry(user.id, entry)
         await ctx.send("Se agregó la serie!")
 
-    @commands.command(aliases=['chd'])
+    @commands.command(aliases=['chd', 'changedate', 'setdate'])
     async def change_view_date(self, ctx, entry:str, new_date:str=None):
         set_date_to_entry(entry, new_date)
         entry = get_entry_from_name(entry)
@@ -54,7 +54,7 @@ class EntriesMod(commands.Cog):
             entry.view_date.strftime("%d-%m-%Y")
         ))            
 
-    @commands.command(aliases=['chticks'])
+    @commands.command(aliases=['chticks', 'changeticks', 'setticks'])
     async def change_tickets(self, ctx, entry:str, tickets:int):
         if (tickets > 5 or tickets < 1):
             return await ctx.send('El numero de tickets debe ser de 1 a 5')
