@@ -164,4 +164,5 @@ def sum_tickets(entries):
     sum = 0
     for entry in entries:
         sum += entry.tickets
+    session.close()
     return sum
