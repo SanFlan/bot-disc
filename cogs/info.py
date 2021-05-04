@@ -23,29 +23,29 @@ class Info(commands.Cog):
                 Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
             """.format(EMOJIS["dice"], EMOJIS["eye"]),
             'rall': "*(roll all)* Similar al comando roll, pero entre todas las series sin ver",
-            'ldb': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie, sus tickets correspondientes y la fecha en que salió (o no).",
-            'lw, lwatched': "*(list watched)* Muestra las series ya vistas",
-            'lnw, lnwatched': "*(list not watched)* Muestra las series no vistas",
-            'lda': "*(list adoptables)* Imprime la base de datos de las series adoptables, aka con 5 tickets.",
+            'ldb, listdatabase, database': "*(list database)* Muestra las series disponibles para ver, el usuario que propuso cada serie, sus tickets correspondientes y la fecha en que salió (o no).",
+            'lwatched, lw, listwatched, watched': "*(list watched)* Muestra las series ya vistas",
+            'lnwatched, lnw, listnotwatched, notwatched': "*(list not watched)* Muestra las series no vistas",
+            'lda, listadopt, adoptables': "*(list adoptables)* Imprime la base de datos de las series adoptables, aka con 5 tickets.",
             'add, aefu': """
                 *(add entry for user)* Agrega una serie a la lista.
                 Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
                 *Ejemplo: add Tensz Baccano!*
                 """,
-            'chd': """
+            'chd, changedate, setdate': """
                 *(change view date)* Cambia la fecha en que se vio una serie. El valor serie y fecha tienen que encontrarse \
                 entre comillas dobles o simples, y la fecha en formato DD-MM-YYYY. Si no se indica fecha utiliza la actual.
                 *Ejemplo: chd "Nazo No Kanojo X" "23-01-2020"*
                 """,
             'remove': """
                 Borra una entrada por **nombre** de la base de datos. **CUIDADO:** Acepta resultados parciales por lo que puede borrar entradas indeseadas
-                *Ejemplo: remove Boku no Pico"*
+                *Ejemplo: remove Boku no Pico*
                 """,
             'adopt': """
                 Adopta una serie entre las disponibles en *lda*, mantiniendo sus tickets. Es necesario tener un rol con jerarquía correspondiente.
                 *Ejemplo: adopt @Bravelycold Ishuzoku Reviewers*
                 """,
-            'chticks': """
+            'chticks, changeticks, setticks': """
                 Cambia la cantidad de tickets de una entrada particular.
                 Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
                 *Ejemplo: chticks "Boku no Pico" 4*
@@ -53,12 +53,16 @@ class Info(commands.Cog):
             'tick': """
                 Suma un ticket a todas las series no vistas en la base de datos. Toma como argumento opcional cuántos tickets se puedn sumar (puede ser un número negativo).
                 Es necesario tener un rol con jerarquía correspondiente para utilizar este comando.
+                """,
+            'propuesta': """
+                Muestra la propuesta de cierto usuario.
+                *Ejemplo: propuesta @jugoprex*
                 """
         }
         for k, v in dict_list.items():
             embed.add_field(name=k, value=v, inline=False)
         await ctx.send(embed=embed)
-
+ 
     @commands.command(aliases=['on?'])
     async def atiendo_virgos(self, ctx):
         picardia  = self.bot.get_emoji(784272637010509864)

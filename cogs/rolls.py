@@ -43,8 +43,14 @@ class Rolls(commands.Cog):
 
         end_loop = False
         while end_loop == False:
-            roll = random.randint(0,len(entries)-1)
-            entry = entries[roll]
+            roll = random.randint(0,sum_tickets(entries)-1)
+            count = 0
+            for ent in entries:
+                if ent.tickets + count < roll:
+                    count += ent.tickets
+                else: 
+                    entry = ent
+                    break
 
             member = ctx.guild.get_member(entry.user_id)
 
